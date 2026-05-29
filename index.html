@@ -1,0 +1,1011 @@
+<!DOCTYPE html>
+<html lang="lo">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TM-Pro — TIK Report</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
+
+<style>
+:root {
+  --bg:#eef4fb; --surface:#fff; --border:#c8dcf0; --border-strong:#90bce0;
+  --text:#1a3a5c; --text-muted:#4a6a8a; --text-faint:#7a9ab8;
+  --accent:#1a472a; --accent-light:#e8f0eb;
+  --blue:#1565c0; --blue-light:#dbeafe;
+  --amber:#7a4a00; --amber-light:#fdf3e3;
+  --red:#7a1a1a; --red-light:#fdeaea;
+  --purple:#3d1a7a; --purple-light:#f0eafd;
+  --teal:#0a5a5a; --teal-light:#e5f5f5;
+  --font:'IBM Plex Sans',sans-serif; --mono:'IBM Plex Mono',monospace;
+  --radius:6px; --radius-lg:10px; --shadow:0 2px 8px rgba(21,101,192,.10);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font);background:var(--bg);color:var(--text);font-size:14px;min-height:100vh}
+.shell{display:flex;min-height:100vh}
+.sidebar{width:220px;background:linear-gradient(160deg,#1565c0 0%,#1e88e5 100%);color:#fff;display:flex;flex-direction:column;flex-shrink:0}
+.sidebar-logo{padding:22px 18px 16px;border-bottom:1px solid rgba(255,255,255,.2)}
+.logo-main{font-size:15px;font-weight:600;letter-spacing:.02em}
+.logo-sub{font-size:11px;color:rgba(255,255,255,.5);margin-top:2px;font-family:var(--mono)}
+.sidebar-nav{padding:12px 0;flex:1}
+.nav-item{display:flex;align-items:center;gap:10px;padding:10px 18px;cursor:pointer;color:rgba(255,255,255,.6);font-size:13px;transition:all .15s;border-left:3px solid transparent}
+.nav-item:hover{color:#fff;background:rgba(255,255,255,.06)}
+.nav-item.active{color:#fff;background:rgba(255,255,255,.1);border-left-color:#7fc99a}
+.nav-item i{width:16px;text-align:center;font-size:14px}
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden}
+.topbar{background:var(--surface);border-bottom:1px solid var(--border);padding:0 24px;height:52px;display:flex;align-items:center;justify-content:space-between}
+.topbar-title{font-size:14px;font-weight:600}
+.topbar-right{display:flex;align-items:center;gap:12px}
+.topbar-meta{font-size:12px;color:var(--text-faint);font-family:var(--mono)}
+.sync-dot{width:8px;height:8px;border-radius:50%;background:#ccc;display:inline-block;transition:background .4s}
+.sync-dot.live{background:#22c55e;box-shadow:0 0 0 2px rgba(34,197,94,.25)}
+.sync-dot.err{background:#ef4444}
+.sync-label{font-size:11px;color:var(--text-faint)}
+.content{flex:1;overflow-y:auto;padding:24px}
+.section{display:none}
+.section.active{display:block}
+.metrics-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px}
+.metric-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:16px;border-top:3px solid #2196f3}
+.metric-label{font-size:11px;color:var(--text-muted);margin-bottom:6px;text-transform:uppercase;letter-spacing:.06em}
+.metric-value{font-size:28px;font-weight:600;font-family:var(--mono);line-height:1;color:#1565c0}
+.metric-sub{font-size:11px;color:var(--text-faint);margin-top:5px}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:18px;margin-bottom:16px;box-shadow:var(--shadow)}
+.card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.card-title{font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--text-muted)}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
+.badge{display:inline-block;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:500}
+.badge-green{background:var(--accent-light);color:var(--accent)}
+.badge-amber{background:var(--amber-light);color:var(--amber)}
+.badge-red{background:var(--red-light);color:var(--red)}
+.badge-blue{background:var(--blue-light);color:var(--blue)}
+.badge-gray{background:#f0ede6;color:var(--text-muted)}
+.badge-purple{background:var(--purple-light);color:var(--purple)}
+.badge-pending{background:#fff8e1;color:#7a5a00;border:1px solid #f0d060}
+.badge-approved{background:var(--accent-light);color:var(--accent);border:1px solid #a8d4b4}
+.badge-executed{background:var(--blue-light);color:var(--blue);border:1px solid #a0bcd8}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{text-align:left;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.07em;color:var(--text-muted);padding:8px 10px;border-bottom:1px solid var(--border);background:#f0f7ff}
+td{padding:9px 10px;border-bottom:1px solid var(--border);vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:#f0f7ff}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 14px;border-radius:var(--radius);border:1px solid var(--border-strong);background:var(--surface);color:var(--text);font-size:13px;font-family:var(--font);cursor:pointer;transition:all .15s}
+.btn:hover{background:var(--bg);border-color:var(--blue)}
+.btn-primary{background:var(--blue);color:#fff;border-color:var(--blue)}
+.btn-primary:hover{background:#1256a8;opacity:1}
+.btn-sm{padding:5px 10px;font-size:12px}
+.btn-group{display:flex;gap:8px}
+.bar-wrap{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.bar-label{font-size:12px;width:100px;text-align:right;color:var(--text-muted);flex-shrink:0}
+.bar-track{flex:1;height:12px;background:var(--bg);border-radius:3px;overflow:hidden}
+.bar-fill{height:100%;border-radius:3px}
+.bar-val{font-size:12px;width:30px;color:var(--text-muted);font-family:var(--mono)}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
+.form-group{display:flex;flex-direction:column;gap:5px}
+.form-group label{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--text-muted)}
+.form-group input,.form-group select,.form-group textarea{border:1px solid var(--border);border-radius:var(--radius);padding:8px 10px;font-size:13px;font-family:var(--font);background:var(--surface);color:var(--text);transition:border-color .15s}
+.form-group input:focus,.form-group select:focus,.form-group textarea:focus{outline:none;border-color:var(--text)}
+.form-group textarea{min-height:90px;resize:vertical}
+.import-zone{border:2px dashed var(--border-strong);border-radius:var(--radius-lg);padding:36px;text-align:center;margin-bottom:18px;cursor:pointer;transition:all .15s}
+.import-zone:hover{border-color:var(--text);background:#f0f7ff}
+.import-icon{font-size:28px;color:#2196f3;margin-bottom:10px}
+.import-title{font-size:14px;font-weight:600;margin-bottom:4px}
+.import-sub{font-size:12px;color:var(--text-muted)}
+.tag{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:3px;font-size:11px;background:var(--bg);color:var(--text-muted);border:1px solid var(--border)}
+.notice{border-radius:var(--radius);padding:10px 14px;font-size:12px;margin-bottom:16px;display:flex;align-items:center;gap:8px}
+.notice-blue{background:var(--blue-light);border:1px solid #b5cfe8;color:var(--blue)}
+.notice-green{background:var(--accent-light);border:1px solid #a8d4b4;color:var(--accent)}
+.notice-amber{background:var(--amber-light);border:1px solid #f0c060;color:var(--amber)}
+.case-card{background:var(--surface);border:1px solid var(--border);border-left:4px solid #2196f3;border-radius:var(--radius-lg);padding:18px;margin-bottom:12px;transition:box-shadow .15s;box-shadow:var(--shadow)}
+.case-card:hover{box-shadow:0 4px 16px rgba(21,101,192,.14)}
+.case-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px}
+.case-name{font-size:15px;font-weight:600;margin-bottom:6px;color:#1565c0}
+.case-badges{display:flex;gap:6px;flex-wrap:wrap}
+.case-amount{font-size:22px;font-weight:600;font-family:var(--mono);text-align:right;color:#1565c0}
+.case-deadline{font-size:11px;color:var(--text-faint);margin-top:2px;text-align:right}
+.case-fields{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:12px;padding:12px;background:var(--bg);border-radius:var(--radius);border:1px solid var(--border)}
+.cf-label{font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--text-faint);margin-bottom:3px}
+.cf-value{font-size:13px;font-weight:500}
+.case-footer{display:flex;align-items:center;justify-content:space-between;padding-top:12px;border-top:1px solid var(--border)}
+.ringi-preview{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:20px;font-size:13px;line-height:2}
+.ringi-preview-title{text-align:center;font-size:16px;font-weight:600;letter-spacing:.12em;margin-bottom:14px;padding-bottom:12px;border-bottom:2px solid #2196f3;color:#1565c0}
+.ringi-grid{display:grid;grid-template-columns:140px 1fr 140px 1fr;gap:3px 12px}
+.ringi-label{color:var(--text-muted);font-size:12px}
+.ringi-val{font-size:13px;font-weight:500}
+.seg{display:flex;border:1px solid var(--border-strong);border-radius:var(--radius);overflow:hidden}
+.seg-btn{padding:6px 14px;font-size:12px;border:none;background:none;cursor:pointer;color:var(--text-muted);font-family:var(--font)}
+.seg-btn.active{background:var(--blue);color:#fff}
+.section-hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}
+.section-hdr-title{font-size:16px;font-weight:600}
+.section-hdr-sub{font-size:13px;color:var(--text-faint);margin-top:2px}
+.dash-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}
+.dash-period{font-size:13px;color:var(--text-muted);font-family:var(--mono)}
+.modal{display:none !important;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:1000;align-items:center;justify-content:center}
+.modal.show{display:flex !important}
+.modal-content{background:var(--surface);border-radius:var(--radius-lg);padding:24px;width:560px;max-height:90vh;overflow-y:auto;box-shadow:0 8px 32px rgba(0,0,0,.18)}
+.modal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}
+.modal-title{font-size:15px;font-weight:600;color:#1565c0}
+
+/* SETUP OVERLAY */
+#setup-overlay{position:fixed;inset:0;background:rgba(21,101,192,.55);z-index:9999;display:flex;align-items:center;justify-content:center}
+#setup-overlay .setup-box{background:#fff;border-radius:12px;padding:32px;width:520px;max-height:90vh;overflow-y:auto;box-shadow:0 16px 64px rgba(0,0,0,.3)}
+.setup-title{font-size:18px;font-weight:600;margin-bottom:6px;color:#1565c0}
+.setup-sub{font-size:13px;color:var(--text-muted);margin-bottom:20px}
+.setup-step{display:flex;gap:12px;margin-bottom:16px;padding:14px;background:#faf9f6;border-radius:var(--radius);border:1px solid var(--border)}
+.setup-num{width:24px;height:24px;background:#1565c0;color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;flex-shrink:0;margin-top:1px}
+.setup-step-body{flex:1}
+.setup-step-title{font-size:13px;font-weight:600;margin-bottom:4px}
+.setup-step-desc{font-size:12px;color:var(--text-muted);line-height:1.5}
+.setup-step-desc a{color:var(--blue);text-decoration:none}
+.setup-step-desc a:hover{text-decoration:underline}
+.config-input{width:100%;border:1px solid var(--border);border-radius:var(--radius);padding:8px 10px;font-size:12px;font-family:var(--mono);margin-top:6px;resize:vertical;min-height:100px}
+.config-input:focus{outline:none;border-color:var(--text)}
+.setup-divider{border:none;border-top:1px solid var(--border);margin:20px 0}
+</style>
+</head>
+<body>
+
+<div id="setup-overlay">
+  <div class="setup-box">
+    <div class="setup-title"><i class="fa-brands fa-github"></i>&nbsp;GitHub Gist &mdash; ການຕັ້ງຄ່າ Sync</div>
+    <div class="setup-sub">ຟົຣີ, ບົ່ CORS ສະກັດ, ທຸກ browser ຮົງຮັບ &mdash; ງ່າຍວ່າ Firebase</div>
+
+    <div class="setup-step">
+      <div class="setup-num">1</div>
+      <div class="setup-step-body">
+        <div class="setup-step-title">Deploy ານ <strong>Netlify</strong> (ຟົຣີ) &mdash; Tiiny.host ສະກັດ API</div>
+        <div class="setup-step-desc">
+          <a href="https://netlify.com" target="_blank">netlify.com</a> &rarr; Sign up &rarr; "Add new site" &rarr; "Deploy manually"<br>
+          &rarr; ລາກໄຟລ່ HTML &rarr; ໄດ້ URL ຕົຍທີ່ share ໄດ້
+        </div>
+      </div>
+    </div>
+
+    <div class="setup-step">
+      <div class="setup-num">2</div>
+      <div class="setup-step-body">
+        <div class="setup-step-title">ສ້າງ GitHub Personal Access Token</div>
+        <div class="setup-step-desc">
+          <a href="https://github.com/settings/tokens/new" target="_blank">github.com/settings/tokens/new</a><br>
+          &rarr; Note: <strong>TIK Report</strong> &rarr; Expiration: <strong>No expiration</strong><br>
+          &rarr; Scope: <strong>gist</strong> (ຕິກໄວ້ເທານັ້ນ) &rarr; Generate &rarr; copy <code style="background:#dbeafe;padding:1px 5px;border-radius:3px;font-family:monospace">ghp_...</code>
+        </div>
+      </div>
+    </div>
+
+    <div class="setup-step">
+      <div class="setup-num">3</div>
+      <div class="setup-step-body">
+        <div class="setup-step-title">ວາງ Token ລົງ (ທຸກຄົນໃສ່ token ດີງກັນ)</div>
+        <input type="text" id="gh-token" placeholder="ghp_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+          style="width:100%;border:1px solid var(--border);border-radius:var(--radius);padding:10px 12px;font-size:13px;font-family:monospace;margin-top:8px;background:#f8fbff;color:var(--text)">
+        <div style="font-size:11px;color:var(--text-faint);margin-top:10px">
+          <i class="fa-solid fa-circle-info" style="color:#2196f3"></i>
+          ຖ້າມີ <strong>Gist ID</strong> ແລ້ວ (ຈາກເພື່ອນຮ່ວມທີມ) ໃສ່ຊີ້ນີ້:
+        </div>
+        <input type="text" id="gh-gistid" placeholder="ໃສ່ Gist ID ຖ້າມີ — ຫວ່ງໄດ້ (ຈະສ້າງໃຫມ່ automatic)"
+          style="width:100%;border:1px solid var(--border);border-radius:var(--radius);padding:8px 12px;font-size:12px;font-family:monospace;margin-top:6px;background:#f8fbff;color:var(--text)">
+      </div>
+    </div>
+
+    <hr class="setup-divider">
+    <div style="font-size:12px;color:var(--amber);background:var(--amber-light);border-radius:var(--radius);padding:8px 12px;margin-bottom:12px;border:1px solid #f0c060">
+      <i class="fa-solid fa-triangle-exclamation"></i>
+      <strong>Tiiny.host</strong> ສະກັດ API — ໃຊ້ <strong>Netlify</strong> ເພື່ອ sync ໄດ້.
+      ຫລືອໃຊ້ <a href="#" onclick="useLocalMode();return false" style="color:var(--amber);font-weight:600">Local mode</a> + ສົງອອກ/ນຳເຂ້າ JSON
+    </div>
+    <div style="display:flex;gap:10px;justify-content:flex-end">
+      <button class="btn" onclick="useLocalMode()"><i class="fa-solid fa-laptop"></i>Local mode (ບົ່ sync)</button>
+      <button class="btn btn-primary" id="connect-btn" onclick="connectGist()"><i class="fa-brands fa-github"></i>ເຊື່ອມຕົ່ GitHub Gist</button>
+    </div>
+    <div id="config-error" style="color:var(--red);font-size:12px;margin-top:10px;display:none"></div>
+  </div>
+</div>
+
+
+
+<!-- ===================== FIREBASE SETUP OVERLAY ===================== -->
+
+
+<!-- ===================== MAIN APP ===================== -->
+<div class="shell">
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-main">TM-Pro</div>
+    <div class="logo-sub">TIK Report System</div>
+  </div>
+  <nav class="sidebar-nav">
+    <div class="nav-item active" onclick="showSection('dashboard',this)"><i class="fa-solid fa-chart-pie"></i>ແດຊບອດ</div>
+    <div class="nav-item" onclick="showSection('calllist',this)"><i class="fa-solid fa-phone-volume"></i>ລາຍຊື່ໂທ</div>
+    <div class="nav-item" onclick="showSection('cases',this)"><i class="fa-solid fa-folder-open"></i>ລາຍການແຕ່ລະເຄສ</div>
+    <div class="nav-item" onclick="showSection('ringi',this)"><i class="fa-solid fa-file-signature"></i>ສ້າງໃບຂໍອານຸມັດ</div>
+  </nav>
+</aside>
+
+<div class="main">
+  <div class="topbar">
+    <span class="topbar-title" id="topbar-title">ແດຊບອດ — ລາຍງານລວມ</span>
+    <div class="topbar-right">
+      <span class="sync-dot" id="sync-dot"></span>
+      <span class="sync-label" id="sync-label">ກຳລັງເຊື່ອມຕໍ່...</span>
+      <div class="btn-group">
+      <button class="btn btn-sm" onclick="exportLocalData()" title="ສົງອອກຂໍ້ມູນ JSON"><i class="fa-solid fa-file-export"></i></button>
+      <button class="btn btn-sm" onclick="importLocalData()" title="ນຳເຂ້າຂໍ້ມູນ JSON"><i class="fa-solid fa-file-import"></i></button>
+    </div>
+    <span class="topbar-meta" id="topbar-date"></span>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- DASHBOARD -->
+    <div id="dashboard" class="section active">
+      <div class="dash-top">
+        <div>
+          <div style="font-size:16px;font-weight:600">ລາຍງານລວມ — ມິຖຸນາ 2026</div>
+          <div class="dash-period">ອັບເດດ: <span id="dash-updated"></span></div>
+        </div>
+        <div class="seg">
+          <button class="seg-btn active" onclick="dashToggle(this)">ທັງໝົດ</button>
+          <button class="seg-btn" onclick="dashToggle(this)">ລາຍບຸກຄົນ</button>
+        </div>
+      </div>
+
+      <div class="metrics-grid">
+        <div class="metric-card"><div class="metric-label">ຈຳນວນໂທທັງໝົດ</div><div class="metric-value" id="m-total">0</div><div class="metric-sub" id="m-total-sub">—</div></div>
+        <div class="metric-card"><div class="metric-label">ຮັບສາຍໄດ້ລົມ</div><div class="metric-value" id="m-connected">0</div><div class="metric-sub" id="m-conn-rate">ອັດຕາ 0%</div></div>
+        <div class="metric-card"><div class="metric-label">ລູກຄ້າສົນໃຈ</div><div class="metric-value" id="m-interested">0</div><div class="metric-sub" id="m-int-rate">ອັດຕາ 0%</div></div>
+        <div class="metric-card"><div class="metric-label">ດໍາເນີນແລ້ວ</div><div class="metric-value" id="m-cases">0</div><div class="metric-sub">ເຄສທັງໝົດ</div></div>
+      </div>
+
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-header"><span class="card-title">ສະຖານະການໂທ</span></div>
+          <div id="dash-call-bars"></div>
+        </div>
+        <div class="card">
+          <div class="card-header"><span class="card-title">ເຄສເຮັດການຄ້າ</span></div>
+          <div id="dash-trade-bars"></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header"><span class="card-title">ສະຫຼຸບຕາມຜູ້ຮັບຜິດຊອບ</span></div>
+        <table><thead><tr><th>ຜູ້ຮັບຜິດຊອບ</th><th>ຈຳນວນໂທ</th><th>ຮັບສາຍ</th><th>ສົນໃຈ</th><th>ບໍ່ສົນ</th><th>ກູ້ຢືມ</th><th>JV</th><th>ລົງທຶນ</th><th>ຊື້ຂາຍ</th><th>ເຄສ</th></tr></thead>
+        <tbody id="dash-owner-tbody"></tbody></table>
+      </div>
+    </div>
+
+    <!-- CALL LIST -->
+    <div id="calllist" class="section">
+      <div class="notice notice-green" id="sync-notice-call"><i class="fa-solid fa-rotate"></i>ກຳລັງໂຫຼດ...</div>
+
+      <label class="import-zone" for="csvFile">
+        <div class="import-icon"><i class="fa-solid fa-cloud-arrow-up"></i></div>
+        <div class="import-title">ລາກ & ວາງລາຍຊື່ໂທທີ່ນີ້</div>
+        <div class="import-sub">CSV / Excel (.xlsx) — ຄລິກເລືອກໄຟລ໌</div>
+        <input type="file" id="csvFile" accept=".csv,.xlsx" style="display:none" onchange="handleImport(this)">
+      </label>
+
+      <div class="section-hdr">
+        <div>
+          <div class="section-hdr-title">ລາຍຊື່ທີ່ນຳເຂົ້າແລ້ວ</div>
+          <div class="section-hdr-sub" id="call-count">0 ລາຍການ</div>
+        </div>
+        <div class="btn-group">
+          <button class="btn" onclick="openAddCallModal()"><i class="fa-solid fa-plus"></i>ເພີ່ມດ້ວຍຕົນເອງ</button>
+          <button class="btn" onclick="exportCallList()"><i class="fa-solid fa-file-excel"></i>ສົ່ງອອກ Excel</button>
+        </div>
+      </div>
+
+      <div class="card" style="padding:0;overflow:hidden">
+        <table><thead><tr><th>ແຫຼ່ງຂໍ້ມູນ</th><th>ຊື່ບໍລິສັດ</th><th>ຜູ້ຕິດຕໍ່</th><th>ສະຖານະ</th><th>ຜົນ</th><th>ເຄສເຮັດການຄ້າ</th><th>ຜູ້ຮັບຜິດຊອບ</th><th></th></tr></thead>
+        <tbody id="call-tbody"></tbody></table>
+      </div>
+
+      <!-- ADD CALL MODAL -->
+      <div id="addCallModal" class="modal">
+        <div class="modal-content">
+          <div class="modal-header"><span class="modal-title">ເພີ່ມລາຍການໃໝ່</span><button class="btn btn-sm" onclick="closeAddCallModal()"><i class="fa-solid fa-xmark"></i></button></div>
+          <div class="form-grid">
+            <div class="form-group"><label>ແຫຼ່ງຂໍ້ມູນ (ປ້ອນເອງ)</label><input type="text" id="nc-source" placeholder="ນາມບັດ, ເວັບ, DM..."></div>
+            <div class="form-group"><label>ຊື່ບໍລິສັດ</label><input type="text" id="nc-company"></div>
+          </div>
+          <div class="form-grid">
+            <div class="form-group"><label>ຊື່ຜູ້ຕິດຕໍ່</label><input type="text" id="nc-contact"></div>
+            <div class="form-group"><label>ຜູ້ຮັບຜິດຊອບ (ປ້ອນເອງ)</label><input type="text" id="nc-owner" placeholder="ຊື່ຜູ້ຮັບຜິດຊອບ"></div>
+          </div>
+          <div class="form-grid">
+            <div class="form-group"><label>ສະຖານະການໂທ</label>
+              <select id="nc-status"><option>ຮັບສາຍໄດ້ລົມ</option><option>ຕິດຕໍ່ບໍ່ໄດ້</option><option>ບໍ່ຮັບສາຍ</option></select>
+            </div>
+            <div class="form-group"><label>ຜົນ</label>
+              <select id="nc-result"><option value="ລູກຄ້າສົນໃຈ">ລູກຄ້າສົນໃຈ</option><option value="ບໍ່ສົນໃຈ">ບໍ່ສົນໃຈ</option><option value="—">—</option></select>
+            </div>
+          </div>
+          <div class="form-group" style="margin-bottom:16px"><label>ເຄສເຮັດການຄ້າ</label>
+            <select id="nc-trade"><option>ຕ້ອງການກູ້ຢືມ</option><option>ຮ່ວມທຸລະກິດ (JV)</option><option>ລົງທຶນ</option><option>ການແນະນຳ</option><option>ການຊື້ຂາຍ</option><option value="—">—</option></select>
+          </div>
+          <div class="btn-group" style="justify-content:flex-end">
+            <button class="btn" onclick="closeAddCallModal()">ຍົກເລີກ</button>
+            <button class="btn btn-primary" onclick="saveCall()"><i class="fa-solid fa-check"></i>ບັນທຶກ</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CASES -->
+    <div id="cases" class="section">
+      <div class="notice notice-green" id="sync-notice-case"><i class="fa-solid fa-rotate"></i>ກຳລັງໂຫຼດ...</div>
+      <div class="section-hdr">
+        <div>
+          <div class="section-hdr-title">ລາຍການແຕ່ລະເຄສ</div>
+          <div class="section-hdr-sub" id="case-count">0 ເຄສ</div>
+        </div>
+        <div class="btn-group">
+          <button class="btn btn-primary" onclick="showSection('ringi',document.querySelectorAll('.nav-item')[3])"><i class="fa-solid fa-plus"></i>ເພີ່ມເຄສໃໝ່</button>
+          <button class="btn" onclick="exportAllCases()"><i class="fa-solid fa-file-excel"></i>ສົ່ງອອກທັງໝົດລວມເປັນ Excel</button>
+        </div>
+      </div>
+      <div id="cases-container"></div>
+    </div>
+
+    <!-- RINGI -->
+    <div id="ringi" class="section">
+      <div class="notice notice-green"><i class="fa-solid fa-rotate"></i>ເມື່ອບັນທຶກ, ຂໍ້ມູນຈະ sync GitHub Gist — ທຸກຄົນໃນທີມເຫັນດີງກັນ!</div>
+      <div class="section-hdr">
+        <div class="section-hdr-title">ແບບຟອມໃບຂໍອານຸມັດ RINGI</div>
+        <div class="btn-group">
+          <button class="btn" onclick="saveRingi()"><i class="fa-solid fa-floppy-disk"></i>ບັນທຶກ</button>
+          <button class="btn btn-primary" onclick="exportRingiExcel()"><i class="fa-solid fa-file-excel"></i>ສົ່ງອອກ Excel</button>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-header"><span class="card-title">ຂໍ້ມູນພື້ນຖານ</span></div>
+          <div class="form-grid">
+            <div class="form-group"><label>ຜູ້ຮັບຜິດຊອບ (ປ້ອນເອງ)</label><input type="text" id="r-owner" placeholder="ຊື່ຜູ້ຮັບຜິດຊອບ" oninput="updatePreview()"></div>
+            <div class="form-group"><label>ແຫຼ່ງຂໍ້ມູນ (ປ້ອນເອງ)</label><input type="text" id="r-source" placeholder="ນາມບັດ, ເວັບ, DM..."></div>
+          </div>
+          <div class="form-grid">
+            <div class="form-group"><label>ຊື່ບໍລິສັດ</label><input type="text" id="r-company" placeholder="ບໍລິສັດ ○○" oninput="updatePreview()"></div>
+            <div class="form-group"><label>ຊື່ຜູ້ຕິດຕໍ່</label><input type="text" id="r-contact" placeholder="ຊື່ - ນາມສະກຸນ"></div>
+          </div>
+          <div class="form-grid">
+            <div class="form-group"><label>ເຄສເຮັດການຄ້າ</label>
+              <select id="r-trade" oninput="updatePreview()"><option>ຕ້ອງການກູ້ຢືມ</option><option>ຮ່ວມທຸລະກິດ (JV)</option><option>ລົງທຶນ</option><option>ການແນະນຳ</option><option>ການຊື້ຂາຍ</option></select>
+            </div>
+            <div class="form-group"><label>ສະຖານະ RINGI</label>
+              <select id="r-ringi-status"><option value="Ringi Pending">Ringi Pending</option><option value="Approved">Approved</option><option value="Executed">Executed</option></select>
+            </div>
+          </div>
+          <div class="form-group"><label>ສະຖານະການໂທ</label>
+            <select id="r-call-status"><option>ຮັບສາຍໄດ້ລົມ</option><option>ຕິດຕໍ່ບໍ່ໄດ້</option><option>ບໍ່ຮັບສາຍ</option></select>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header"><span class="card-title">ເງື່ອນໄຂເຄສ (USD)</span></div>
+          <div class="form-grid">
+            <div class="form-group"><label>ຈຳນວນເງິນ ($)</label><input type="number" id="r-amount" placeholder="200000" oninput="updatePreview()"></div>
+            <div class="form-group"><label>ກຳນົດເວລາ</label><input type="date" id="r-deadline" oninput="updatePreview()"></div>
+          </div>
+          <div class="form-grid">
+            <div class="form-group"><label>ລາຍຮັບ/ເດືອນ ($)</label><input type="number" id="r-revenue" placeholder="13000" oninput="updatePreview()"></div>
+            <div class="form-group"><label>ກຳໄລ/ເດືອນ ($)</label><input type="number" id="r-profit" placeholder="1300" oninput="updatePreview()"></div>
+          </div>
+          <div class="form-group"><label>ເງື່ອນໄຂຄັ້ງນີ້</label><input type="text" id="r-terms" placeholder="ດອກເບ້ຍ 2%, ໄລຍະ 12 ເດືອນ, ມີຫຼັກຊັບ" oninput="updatePreview()"></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header"><span class="card-title">ຂໍ້ມູນລູກຄ້າ</span></div>
+        <div class="form-grid">
+          <div class="form-group"><label>ລາຍລະອຽດທຸລະກິດ</label><input type="text" id="r-business" placeholder="ກໍ່ສ້າງ, ການຄ້າ..." oninput="updatePreview()"></div>
+          <div class="form-group"><label>ປີທີ່ສ້າງຕັ້ງ</label><input type="text" id="r-founded" placeholder="2010"></div>
+        </div>
+        <div class="form-grid">
+          <div class="form-group"><label>ຈຸດປະສົງການໃຊ້ທຶນ</label><input type="text" id="r-purpose" placeholder="ທຶນໝຸນວຽນ / ຊື້ອຸປະກອນ"></div>
+          <div class="form-group"><label>ແຫຼ່ງຊຳລະຄືນ</label><input type="text" id="r-repayment" placeholder="ເງິນຈາກລູກໜີ້ / ກຳໄລ"></div>
+        </div>
+        <div class="form-group"><label>ລາຍລະອຽດອື່ນໆ</label>
+          <textarea id="r-notes" placeholder="ເນື້ອໃນການນັດພົບ, ຂໍ້ສັງເກດ, ຂໍ້ກັງວົນ..." oninput="updatePreview()"></textarea>
+        </div>
+        <div class="form-group" style="margin-top:8px"><label>ໄຟລ໌ແນບ</label><input type="file" style="font-size:12px;padding:6px"></div>
+      </div>
+
+      <div class="card">
+        <div class="card-header"><span class="card-title">ຕົວຢ່າງໃບຂໍອານຸມັດ RINGI</span></div>
+        <div class="ringi-preview">
+          <div class="ringi-preview-title">ໃ ບ ຂໍ ອ າ ນຸ ມັ ດ &nbsp; RINGI</div>
+          <div class="ringi-grid">
+            <span class="ringi-label">ຜູ້ຮັບຜິດຊອບ</span><span class="ringi-val" id="pv-owner">—</span>
+            <span class="ringi-label">ວັນທີ</span><span class="ringi-val" id="pv-date"></span>
+            <span class="ringi-label">ຊື່ບໍລິສັດ</span><span class="ringi-val" id="pv-company">—</span>
+            <span class="ringi-label">ເຄສເຮັດການຄ້າ</span><span class="ringi-val" id="pv-trade">—</span>
+            <span class="ringi-label">ຈຳນວນເງິນ</span><span class="ringi-val" id="pv-amount">—</span>
+            <span class="ringi-label">ກຳນົດເວລາ</span><span class="ringi-val" id="pv-deadline">—</span>
+            <span class="ringi-label">ລາຍຮັບ/ເດືອນ</span><span class="ringi-val" id="pv-revenue">—</span>
+            <span class="ringi-label">ກຳໄລ/ເດືອນ</span><span class="ringi-val" id="pv-profit">—</span>
+            <span class="ringi-label">ເງື່ອນໄຂ</span><span class="ringi-val" id="pv-terms" style="grid-column:2/5">—</span>
+            <span class="ringi-label">ທຸລະກິດ</span><span class="ringi-val" id="pv-business" style="grid-column:2/5">—</span>
+            <span class="ringi-label">ລາຍລະອຽດອື່ນໆ</span><span class="ringi-val" id="pv-notes" style="grid-column:2/5;color:var(--text-muted)">—</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /content -->
+</div><!-- /main -->
+</div><!-- /shell -->
+
+<script>
+// ============================================================
+// STATE
+// ============================================================
+var callData  = [];
+var caseData  = [];
+var GH_TOKEN  = '';
+var GH_GIST   = '';
+var GH_FILE   = 'tik_report_data.json';
+var GH_URL    = 'https://api.github.com/gists';
+var syncTimer = null;
+
+// ============================================================
+// GITHUB GIST — ຕັ້ງຄ່າ & Sync (ແທນ Firebase/JSONBin)
+// ============================================================
+function connectGist() {
+  var token  = document.getElementById('gh-token').value.trim();
+  var gistId = document.getElementById('gh-gistid').value.trim();
+  var errEl  = document.getElementById('config-error');
+  var btn    = document.getElementById('connect-btn');
+  errEl.style.display = 'none';
+  if (!token || !token.startsWith('ghp_')) {
+    errEl.textContent = 'ກະລຸນາໃສ່ token ທີ່ຖູກຕ້ອງ (ຕ້ອງເລີ່ມ ghp_...)';
+    errEl.style.display = 'block'; return;
+  }
+  GH_TOKEN = token;
+  localStorage.setItem('tik_gh_token', token);
+  btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> ກຳລັງເຊື່ອມຕົ່...';
+  btn.disabled = true;
+  if (gistId) {
+    GH_GIST = gistId;
+    localStorage.setItem('tik_gh_gist', gistId);
+    document.getElementById('setup-overlay').style.display = 'none';
+    loadData(true);
+  } else {
+    // Create new Gist
+    ghFetch(GH_URL, 'POST', {
+      description: 'TM-Pro TIK Report Data',
+      public: false,
+      files: {}
+    }, function(data) {
+      if (!data || !data.id) {
+        showErr('ສ້າງ Gist ຜິດພາດ: ' + JSON.stringify(data));
+        btn.innerHTML = '<i class="fa-brands fa-github"></i>ເຊື່ອມຕົ່ GitHub Gist';
+        btn.disabled = false;
+        return;
+      }
+      GH_GIST = data.id;
+      localStorage.setItem('tik_gh_gist', GH_GIST);
+      document.getElementById('setup-overlay').style.display = 'none';
+      showGistIDDialog(GH_GIST);
+      // Initialize empty data file in gist
+      saveData(null);
+    }, function(err) {
+      showErr(err);
+      btn.innerHTML = '<i class="fa-brands fa-github"></i>ເຊື່ອມຕົ່ GitHub Gist';
+      btn.disabled = false;
+    });
+  }
+}
+
+function showErr(msg) {
+  var el = document.getElementById('config-error');
+  if (el) { el.textContent = '❌ ' + msg; el.style.display = 'block'; }
+}
+
+// ---- Core fetch wrapper for GitHub API ----
+function ghFetch(url, method, body, onSuccess, onError) {
+  var xhr = new XMLHttpRequest();
+  xhr.open(method, url, true);
+  xhr.setRequestHeader('Authorization', 'token ' + GH_TOKEN);
+  xhr.setRequestHeader('Content-Type', 'application/json');
+  xhr.setRequestHeader('Accept', 'application/vnd.github.v3+json');
+  xhr.onload = function() {
+    try {
+      var data = JSON.parse(xhr.responseText);
+      if (xhr.status >= 200 && xhr.status < 300) onSuccess(data);
+      else onError('HTTP ' + xhr.status + ': ' + (data.message || xhr.statusText));
+    } catch(e) { onError('Parse error: ' + e.message); }
+  };
+  xhr.onerror = function() { onError('Network blocked — Tiiny.host ສະກັດ API ທຸກຊະນິດ. ໃຊ້ Netlify ແທນ (ດູຄຳແນະນຳດ້ານລ່າງ)'); };
+  xhr.send(body ? JSON.stringify(body) : null);
+}
+
+function useLocalMode() {
+  document.getElementById('setup-overlay').style.display = 'none';
+  setSyncStatus('err', 'Local only');
+  var w = '<i class="fa-solid fa-triangle-exclamation"></i> Local mode &mdash; <a href="#" onclick="openSetup()" style="color:var(--blue);font-weight:500">ຕັ້ງຄ່າ GitHub Gist</a>';
+  document.getElementById('sync-notice-call').innerHTML = w;
+  document.getElementById('sync-notice-call').className = 'notice notice-amber';
+  document.getElementById('sync-notice-case').innerHTML = w;
+  document.getElementById('sync-notice-case').className = 'notice notice-amber';
+  renderCallTable(); renderCases(); updateDashboard();
+}
+
+function setSyncStatus(state, label) {
+  document.getElementById('sync-dot').className = 'sync-dot ' + (state === 'live' ? 'live' : 'err');
+  document.getElementById('sync-label').textContent = label;
+}
+
+// ---- LOAD from Gist ----
+function loadData(isInit) {
+  if (!GH_GIST || !GH_TOKEN) return;
+  setSyncStatus('err', 'ກຳລັງໂຫລດ...');
+  ghFetch(GH_URL + '/' + GH_GIST, 'GET', null, function(data) {
+    var file = data.files && data.files[GH_FILE];
+    if (file && file.content) {
+      try {
+        var rec = JSON.parse(file.content);
+        callData = (rec.calls || []).map(function(r, i) { return Object.assign({_key: r._key || 'c' + i}, r); });
+        caseData = (rec.cases || []).map(function(c, i) { return Object.assign({_key: c._key || 'k' + i}, c); });
+      } catch(e) { callData = []; caseData = []; }
+    }
+    renderCallTable(); renderCases(); updateDashboard();
+    setSyncStatus('live', 'GitHub Gist sync ✓');
+    var ok = '<i class="fa-solid fa-circle-check"></i> GitHub Gist sync — ທຸກຄົນເຫັນຂໍ້ມູນດີງກັນ <button class="btn btn-sm" style="padding:2px 8px;font-size:11px;margin-left:8px" onclick="loadData(false)"><i class="fa-solid fa-rotate"></i> Refresh</button>';
+    document.getElementById('sync-notice-call').innerHTML = ok;
+    document.getElementById('sync-notice-call').className = 'notice notice-green';
+    document.getElementById('sync-notice-case').innerHTML = ok;
+    document.getElementById('sync-notice-case').className = 'notice notice-green';
+    if (isInit) startPolling();
+  }, function(err) {
+    setSyncStatus('err', 'ໂຫລດຜິດພາດ: ' + err);
+  });
+}
+
+// ---- SAVE to Gist ----
+function saveData(cb) {
+  if (!GH_GIST || !GH_TOKEN) { if (cb) cb(); return; }
+  setSyncStatus('live', 'ກຳລັງ save...');
+  var payload = {
+    files: {}
+  };
+  payload.files[GH_FILE] = {
+    content: JSON.stringify({
+      calls: callData.map(function(r) { var o = Object.assign({}, r); delete o._key; return o; }),
+      cases: caseData.map(function(c) { var o = Object.assign({}, c); delete o._key; return o; }),
+      updatedAt: Date.now()
+    })
+  };
+  ghFetch(GH_URL + '/' + GH_GIST, 'PATCH', payload, function() {
+    setSyncStatus('live', 'GitHub Gist sync ✓');
+    if (cb) cb();
+  }, function(err) {
+    setSyncStatus('err', 'Save ຜິດ: ' + err);
+  });
+}
+
+// ---- POLLING every 25s ----
+function startPolling() {
+  if (syncTimer) clearInterval(syncTimer);
+  syncTimer = setInterval(function() { if (!document.hidden && GH_GIST) loadData(false); }, 25000);
+  document.addEventListener('visibilitychange', function() { if (!document.hidden && GH_GIST) loadData(false); });
+}
+
+// ---- AUTO LOGIN ----
+function tryAutoLogin() {
+  var k = localStorage.getItem('tik_gh_token');
+  var g = localStorage.getItem('tik_gh_gist');
+  if (k && g) {
+    GH_TOKEN = k; GH_GIST = g;
+    document.getElementById('setup-overlay').style.display = 'none';
+    loadData(true);
+  }
+}
+
+// ---- GIST ID DIALOG ----
+function showGistIDDialog(gistId) {
+  var old = document.getElementById('gistid-dialog');
+  if (old) old.remove();
+  var overlay = document.createElement('div');
+  overlay.id = 'gistid-dialog';
+  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(21,101,192,.45);z-index:99999;display:flex;align-items:center;justify-content:center';
+  overlay.innerHTML =
+    '<div style="background:#fff;border-radius:14px;padding:28px 24px;width:380px;box-shadow:0 12px 40px rgba(21,101,192,.3);border:1px solid #c8dcf0;font-family:IBM Plex Sans,sans-serif">'
+    + '<div style="font-size:16px;font-weight:600;color:#1565c0;margin-bottom:6px"><i class="fa-solid fa-circle-check" style="color:#22c55e"></i> ສອລ່ສຳເລີດ!</div>'
+    + '<div style="font-size:13px;color:#4a6a8a;margin-bottom:14px">ສ່ງ Gist ID ນີ້ໃຫ້ທຸກຄົນໃນທີມ</div>'
+    + '<div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:#7a9ab8;margin-bottom:6px">GIST ID</div>'
+    + '<div style="display:flex;gap:8px;align-items:center;margin-bottom:16px">'
+    +   '<input id="gistid-input" type="text" readonly value="' + gistId + '" onclick="this.select()" '
+    +     'style="flex:1;border:1px solid #c8dcf0;border-radius:6px;padding:10px 12px;font-size:14px;font-family:monospace;background:#eef4fb;color:#1a3a5c;cursor:text">'
+    +   '<button onclick="doCopyGistId()" id="gist-copy-btn" style="padding:10px 14px;background:#1565c0;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:13px;white-space:nowrap;font-family:IBM Plex Sans,sans-serif">'
+    +     '<i class="fa-solid fa-copy"></i> Copy'
+    +   '</button>'
+    + '</div>'
+    + '<div id="gist-copy-result" style="font-size:12px;color:#166534;background:#dcfce7;border-radius:4px;padding:6px 10px;display:none;margin-bottom:14px"><i class="fa-solid fa-check"></i> ຄັດລອກສຳເລີດ!</div>'
+    + '<div style="font-size:12px;color:#4a6a8a;background:#f0f7ff;border-radius:6px;padding:10px;margin-bottom:16px"><i class="fa-solid fa-circle-info" style="color:#2196f3"></i> ທຸກຄົນໃສ່ Token + Gist ID ດີງກັນ — ຂໍ້ມູນຈະ sync ກັນ</div>'
+    + '<button onclick="closeGistDialog()" style="width:100%;padding:10px;background:#1565c0;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:14px;font-weight:500;font-family:IBM Plex Sans,sans-serif">ເຂ້າໃຊ້ງານໄດ້</button>'
+    + '</div>';
+  document.body.appendChild(overlay);
+  setTimeout(function() { var el = document.getElementById('gistid-input'); if (el) el.select(); }, 100);
+}
+function closeGistDialog() { var d = document.getElementById('gistid-dialog'); if (d) d.remove(); }
+function doCopyGistId() {
+  var el = document.getElementById('gistid-input');
+  if (!el) return;
+  el.select(); el.setSelectionRange(0, 9999);
+  var ok = false;
+  try { ok = document.execCommand('copy'); } catch(e) {}
+  if (!ok && navigator.clipboard) navigator.clipboard.writeText(el.value).catch(function(){});
+  var res = document.getElementById('gist-copy-result');
+  var btn = document.getElementById('gist-copy-btn');
+  if (res) { res.style.display = 'block'; setTimeout(function() { res.style.display = 'none'; }, 2000); }
+  if (btn) { btn.innerHTML = '<i class="fa-solid fa-check"></i> ຄັດລອກແລ້ວ!'; setTimeout(function() { btn.innerHTML = '<i class="fa-solid fa-copy"></i> Copy'; }, 2000); }
+}
+
+// ---- BinID dialog kept for backward compat ----
+function showBinIDDialog(id) { showGistIDDialog(id); }
+function openSetup(){ document.getElementById('setup-overlay').style.display='flex'; }
+function closeBinDialog() { closeGistDialog(); }
+function doCopyBinId() { doCopyGistId(); }
+
+// ============================================================
+// NAVIGATION
+// ============================================================
+function showSection(id, el) {
+  document.querySelectorAll('.section').forEach(function(s){ s.classList.remove('active'); });
+  document.querySelectorAll('.nav-item').forEach(function(n){ n.classList.remove('active'); });
+  document.getElementById(id).classList.add('active');
+  if (el) el.classList.add('active');
+  var t = {dashboard:'ແດຊບອດ',calllist:'ລາຍຊື່ໂທ',cases:'ລາຍການແຕ່ລະເຄສ',ringi:'ສ້າງໃບຂໍອານຸມັດ RINGI'};
+  document.getElementById('topbar-title').textContent = t[id]||'';
+}
+function dashToggle(btn) {
+  document.querySelectorAll('.seg-btn').forEach(function(b){ b.classList.remove('active'); });
+  btn.classList.add('active');
+}
+
+
+// ============================================================
+// EXPORT / IMPORT JSON — Manual sync (works on ALL hosts)
+// ============================================================
+function exportLocalData() {
+  var data = {
+    calls: callData.map(function(r){ var o=Object.assign({},r); delete o._key; return o; }),
+    cases: caseData.map(function(c){ var o=Object.assign({},c); delete o._key; return o; }),
+    exportedAt: new Date().toLocaleString('lo-LA')
+  };
+  var blob = new Blob([JSON.stringify(data, null, 2)], {type:'application/json'});
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  a.href = url; a.download = 'TIK_Data_'+Date.now()+'.json';
+  a.click(); URL.revokeObjectURL(url);
+}
+function importLocalData() {
+  var inp = document.createElement('input');
+  inp.type = 'file'; inp.accept = '.json';
+  inp.onchange = function(e) {
+    var file = e.target.files[0]; if(!file) return;
+    var reader = new FileReader();
+    reader.onload = function(ev) {
+      try {
+        var data = JSON.parse(ev.target.result);
+        if (data.calls) callData = data.calls.map(function(r,i){ return Object.assign({_key:'c'+i},r); });
+        if (data.cases) caseData = data.cases.map(function(c,i){ return Object.assign({_key:'k'+i},c); });
+        renderCallTable(); renderCases(); updateDashboard();
+        if (GH_GIST) saveData(null);
+        alert('ນຳເຂ້າສຳເລີດ! '+callData.length+' ລາຍການໂທ, '+caseData.length+' ເຄສ');
+      } catch(err) { alert('ໄຟລ່ຜິດພາດ: '+err.message); }
+    };
+    reader.readAsText(file);
+  };
+  inp.click();
+}
+
+// ============================================================
+// DASHBOARD
+// ============================================================
+function ringiStatusBadge(s) {
+  if (s==='Approved') return '<span class="badge badge-approved">Approved</span>';
+  if (s==='Executed') return '<span class="badge badge-executed">Executed</span>';
+  return '<span class="badge badge-pending">Ringi Pending</span>';
+}
+function updateDashboard() {
+  var total   = callData.length;
+  var conn    = callData.filter(function(r){ return r.status==='ຮັບສາຍໄດ້ລົມ'; }).length;
+  var interest= callData.filter(function(r){ return r.result==='ລູກຄ້າສົນໃຈ'; }).length;
+  document.getElementById('m-total').textContent    = total;
+  document.getElementById('m-connected').textContent= conn;
+  document.getElementById('m-interested').textContent= interest;
+  document.getElementById('m-cases').textContent    = caseData.length;
+  document.getElementById('m-total-sub').textContent = 'ທັງໝົດ '+total+' ລາຍການ';
+  document.getElementById('m-conn-rate').textContent = total ? 'ອັດຕາ '+Math.round(conn/total*100)+'%' : 'ອັດຕາ 0%';
+  document.getElementById('m-int-rate').textContent  = conn ? 'ອັດຕາ '+Math.round(interest/conn*100)+'%' : 'ອັດຕາ 0%';
+
+  // call status bars
+  var notAnswer = callData.filter(function(r){ return r.status==='ບໍ່ຮັບສາຍ'; }).length;
+  var noConn    = callData.filter(function(r){ return r.status==='ຕິດຕໍ່ບໍ່ໄດ້'; }).length;
+  var callBars = [
+    {label:'ຮັບສາຍໄດ້ລົມ', val:conn, color:'#1a472a'},
+    {label:'ຕິດຕໍ່ບໍ່ໄດ້', val:noConn, color:'#7a1a1a'},
+    {label:'ບໍ່ຮັບສາຍ', val:notAnswer, color:'#6b6860'}
+  ];
+  document.getElementById('dash-call-bars').innerHTML = callBars.map(function(b){
+    var pct = total ? Math.round(b.val/total*100) : 0;
+    return '<div class="bar-wrap"><div class="bar-label">'+b.label+'</div><div class="bar-track"><div class="bar-fill" style="width:'+pct+'%;background:'+b.color+'"></div></div><div class="bar-val">'+b.val+'</div></div>';
+  }).join('');
+
+  // trade bars
+  var trades = ['ຕ້ອງການກູ້ຢືມ','ຮ່ວມທຸລະກິດ (JV)','ລົງທຶນ','ການແນະນຳ','ການຊື້ຂາຍ'];
+  var colors = ['#1a472a','#7a4a00','#3d1a7a','#0a5a5a','#1a3a5c'];
+  var tradeCounts = trades.map(function(t){
+    return callData.filter(function(r){ return r.trade===t; }).length;
+  });
+  var maxT = Math.max.apply(null, tradeCounts) || 1;
+  document.getElementById('dash-trade-bars').innerHTML = trades.map(function(t,i){
+    return '<div class="bar-wrap"><div class="bar-label">'+t+'</div><div class="bar-track"><div class="bar-fill" style="width:'+Math.round(tradeCounts[i]/maxT*100)+'%;background:'+colors[i]+'"></div></div><div class="bar-val">'+tradeCounts[i]+'</div></div>';
+  }).join('');
+
+  // owner table
+  var owners = {};
+  callData.forEach(function(r){
+    if(!r.owner||r.owner==='—') return;
+    if(!owners[r.owner]) owners[r.owner]={calls:0,conn:0,interest:0,noInterest:0,loan:0,jv:0,invest:0,trade:0};
+    var o = owners[r.owner];
+    o.calls++;
+    if(r.status==='ຮັບສາຍໄດ້ລົມ') o.conn++;
+    if(r.result==='ລູກຄ້າສົນໃຈ') o.interest++;
+    if(r.result==='ບໍ່ສົນໃຈ') o.noInterest++;
+    if(r.trade==='ຕ້ອງການກູ້ຢືມ') o.loan++;
+    if(r.trade==='ຮ່ວມທຸລະກິດ (JV)') o.jv++;
+    if(r.trade==='ລົງທຶນ') o.invest++;
+    if(r.trade==='ການຊື້ຂາຍ') o.trade++;
+  });
+  var ownerRows = Object.keys(owners).map(function(name){
+    var o = owners[name];
+    var rate = o.calls ? Math.round(o.conn/o.calls*100) : 0;
+    var cls = rate>=55?'badge-green':rate>=45?'badge-amber':'badge-red';
+    var ownerCases = caseData.filter(function(c){ return c.owner===name; }).length;
+    return '<tr><td>'+name+'</td><td>'+o.calls+'</td><td><span class="badge '+cls+'">'+rate+'%</span></td><td>'+o.interest+'</td><td>'+o.noInterest+'</td><td>'+o.loan+'</td><td>'+o.jv+'</td><td>'+o.invest+'</td><td>'+o.trade+'</td><td>'+ownerCases+'</td></tr>';
+  }).join('');
+  document.getElementById('dash-owner-tbody').innerHTML = ownerRows || '<tr><td colspan="10" style="text-align:center;color:var(--text-faint);padding:20px">ຍັງບໍ່ມີຂໍ້ມູນ</td></tr>';
+}
+
+// ============================================================
+// CALL LIST
+// ============================================================
+function renderCallTable() {
+  document.getElementById('call-count').textContent = callData.length + ' ລາຍການ';
+  document.getElementById('call-tbody').innerHTML = callData.map(function(r,i){
+    var sb = r.status==='ຮັບສາຍໄດ້ລົມ'?'badge-green':r.status==='ຕິດຕໍ່ບໍ່ໄດ້'?'badge-red':'badge-gray';
+    var rb = r.result==='ລູກຄ້າສົນໃຈ'?'badge-blue':'badge-gray';
+    var tb = (r.trade&&r.trade!=='—')?'badge-purple':'badge-gray';
+    return '<tr><td><span class="tag">'+r.source+'</span></td><td>'+r.company+'</td><td>'+r.contact+'</td>'
+      +'<td><span class="badge '+sb+'">'+r.status+'</span></td>'
+      +'<td><span class="badge '+rb+'">'+r.result+'</span></td>'
+      +'<td><span class="badge '+tb+'">'+(r.trade||'—')+'</span></td>'
+      +'<td>'+r.owner+'</td>'
+      +'<td><button class="btn btn-sm" onclick="deleteCall('+i+',\''+r._key+'\')"><i class="fa-solid fa-trash"></i></button></td></tr>';
+  }).join('') || '<tr><td colspan="8" style="text-align:center;color:var(--text-faint);padding:24px">ຍັງບໍ່ມີລາຍການ — ນຳເຂົ້າ CSV ຫຼື ເພີ່ມດ້ວຍຕົນເອງ</td></tr>';
+}
+function deleteCall(i, key) {
+  if (!confirm('ລຶບລາຍການນີ້?')) return;
+  var di = callData.findIndex(function(r){ return r._key===key; });
+  if (di>-1){ callData.splice(di,1); renderCallTable(); updateDashboard(); saveData(null); }
+}
+function openAddCallModal() { document.getElementById('addCallModal').classList.add('show'); }
+function closeAddCallModal() { document.getElementById('addCallModal').classList.remove('show'); }
+function saveCall() {
+  var rec = {
+    source:  document.getElementById('nc-source').value  || '—',
+    company: document.getElementById('nc-company').value || '—',
+    contact: document.getElementById('nc-contact').value || '—',
+    status:  document.getElementById('nc-status').value,
+    result:  document.getElementById('nc-result').value,
+    trade:   document.getElementById('nc-trade').value,
+    owner:   document.getElementById('nc-owner').value   || '—',
+    createdAt: Date.now()
+  };
+  rec._key = 'c'+Date.now();
+  callData.push(rec);
+  renderCallTable(); updateDashboard();
+  saveData(null);
+  closeAddCallModal();
+  // clear fields
+  ['nc-source','nc-company','nc-contact','nc-owner'].forEach(function(id){ document.getElementById(id).value=''; });
+}
+function handleImport(input) {
+  var file = input.files[0]; if(!file) return;
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      var wb = XLSX.read(e.target.result, {type:'binary'});
+      var ws = wb.Sheets[wb.SheetNames[0]];
+      var rows = XLSX.utils.sheet_to_json(ws);
+      rows.forEach(function(r) {
+        var rec = {
+          source:  r['ແຫຼ່ງຂໍ້ມູນ']||r['source']||'—',
+          company: r['ຊື່ບໍລິສັດ']||r['company']||'—',
+          contact: r['ຜູ້ຕິດຕໍ່']||r['contact']||'—',
+          status:  r['ສະຖານະ']||r['status']||'—',
+          result:  r['ຜົນ']||r['result']||'—',
+          trade:   r['ເຄສເຮັດການຄ້າ']||r['trade']||'—',
+          owner:   r['ຜູ້ຮັບຜິດຊອບ']||r['owner']||'—',
+          createdAt: Date.now()
+        };
+        rec._key = 'c'+Date.now()+'_'+i;
+        callData.push(rec);
+      });
+      renderCallTable(); updateDashboard(); saveData(null);
+      alert('ນຳເຂົ້າສຳເລັດ: '+rows.length+' ລາຍການ');
+    } catch(err) { alert('ເກີດຂໍ້ຜິດພາດ: '+err.message); }
+  };
+  reader.readAsBinaryString(file);
+}
+function exportCallList() {
+  var ws = XLSX.utils.json_to_sheet(callData.map(function(r){ return {'ແຫຼ່ງຂໍ້ມູນ':r.source,'ຊື່ບໍລິສັດ':r.company,'ຜູ້ຕິດຕໍ່':r.contact,'ສະຖານະ':r.status,'ຜົນ':r.result,'ເຄສເຮັດການຄ້າ':r.trade,'ຜູ້ຮັບຜິດຊອບ':r.owner}; }));
+  var wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb,ws,'ລາຍຊື່ໂທ');
+  XLSX.writeFile(wb,'TIK_CallList.xlsx');
+}
+
+// ============================================================
+// CASES
+// ============================================================
+function renderCases() {
+  var sorted = caseData.slice().sort(function(a,b){ return (b.createdAt||0)-(a.createdAt||0); });
+  document.getElementById('case-count').textContent = sorted.length + ' ເຄສ';
+  document.getElementById('cases-container').innerHTML = sorted.map(function(c){
+    var key = c._key || '';
+    return '<div class="case-card">'
+      +'<div class="case-top"><div>'
+      +'<div class="case-name">'+c.name+'</div>'
+      +'<div class="case-badges" style="margin-top:6px">'
+      +'<span class="badge badge-purple">'+(c.trade||'—')+'</span>'
+      +ringiStatusBadge(c.ringiStatus)
+      +'<span class="tag"><i class="fa-solid fa-user" style="font-size:10px"></i>'+c.owner+'</span>'
+      +'</div></div>'
+      +'<div><div class="case-amount">$'+(c.amount||0).toLocaleString()+'</div>'
+      +'<div class="case-deadline">ກຳນົດ: '+c.deadline+'</div></div></div>'
+      +'<div class="case-fields">'
+      +'<div><div class="cf-label">ລາຍຮັບ/ເດືອນ</div><div class="cf-value">$'+(c.revenue||0).toLocaleString()+'</div></div>'
+      +'<div><div class="cf-label">ກຳໄລ/ເດືອນ</div><div class="cf-value">$'+(c.profit||0).toLocaleString()+'</div></div>'
+      +'<div><div class="cf-label">ເງື່ອນໄຂ</div><div class="cf-value">'+(c.terms||'—')+'</div></div>'
+      +'<div><div class="cf-label">ບົລິສັດ</div><div class="cf-value">'+(c.source||'—')+'</div></div>'
+      +'</div>'
+      +(c.notes?'<div style="font-size:12px;color:var(--amber);padding:8px 12px;background:var(--amber-light);border-radius:var(--radius);margin-bottom:10px;border-left:3px solid #f59e0b">'+c.notes+'</div>':'')
+      +'<div class="case-footer"><div class="btn-group">'
+      +'<button class="btn btn-sm" onclick="exportSingleCase(this.dataset.k)" data-k="'+key+'"><i class="fa-solid fa-file-excel"></i>Excel</button>'
+      +'<button class="btn btn-sm" onclick="changeCaseStatus(this.dataset.k)" data-k="'+key+'"><i class="fa-solid fa-rotate"></i>ສະຖານະ</button>'
+      +'<button class="btn btn-sm" style="color:var(--red)" onclick="deleteCase(this.dataset.k)" data-k="'+key+'"><i class="fa-solid fa-trash"></i>ລຶບ</button>'
+      +'</div></div></div>';
+  }).join('') || '<div style="text-align:center;padding:48px;color:var(--text-faint)"><i class="fa-solid fa-folder-open" style="font-size:36px;margin-bottom:14px;display:block;color:#2196f3"></i>ຍັງບົ່ມີເຄສ</div>';
+}
+function deleteCase(key) {
+  if (!confirm('ລຶບເຄສນີ້?')) return;
+  var idx = caseData.findIndex(function(c){ return c._key===key; });
+  if (idx>-1){ caseData.splice(idx,1); renderCases(); updateDashboard(); saveData(null); }
+}
+function changeCaseStatus(key) {
+  var statuses = ['Ringi Pending','Approved','Executed'];
+  var item = caseData.find(function(c){ return c._key===key; });
+  if (!item) return;
+  var next = statuses[(statuses.indexOf(item.ringiStatus)+1)%3];
+  item.ringiStatus = next;
+  renderCases();
+  saveData(null);
+}
+function exportSingleCase(key) {
+  var c = caseData.find(function(x){ return x._key===key; });
+  if (!c) return;
+  var ws = XLSX.utils.aoa_to_sheet([
+    ['ໃບຂໍອານຸມັດ RINGI'],[''],
+    ['ຜູ້ຮັບຜິດຊອບ',c.owner,'ວັນທີ',new Date().toLocaleDateString('lo-LA')],
+    ['ຊື່ເຄສ',c.name],['ເຄສເຮັດການຄ້າ',c.trade,'ສະຖານະ',c.ringiStatus],
+    ['ຈຳນວນເງິນ ($)',c.amount,'ກຳນົດ',c.deadline],
+    ['ລາຍຮັບ/ເດືອນ ($)',c.revenue,'ກຳໄລ/ເດືອນ ($)',c.profit],
+    ['ເງື່ອນໄຂ',c.terms],['ທຸລະກິດ',c.business],
+    ['ແຫຼ່ງຂໍ້ມູນ',c.source],['ລາຍລະອຽດອື່ນໆ',c.notes]
+  ]);
+  ws['!cols']=[{wch:22},{wch:30},{wch:22},{wch:30}];
+  var wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb,ws,'RINGI');
+  XLSX.writeFile(wb,'RINGI_'+(c.name||'case').replace(/\s/g,'_')+'.xlsx');
+}
+function exportAllCases() {
+  var sorted=caseData.slice().sort(function(a,b){ return (b.createdAt||0)-(a.createdAt||0); });
+  var rows=[['ຊື່ເຄສ','ເຄສເຮັດການຄ້າ','ສະຖານະ','ຈຳນວນເງິນ ($)','ກຳນົດ','ຜູ້ຮັບຜິດຊອບ','ລາຍຮັບ/ເດືອນ','ກຳໄລ/ເດືອນ','ເງື່ອນໄຂ','ທຸລະກິດ','ແຫຼ່ງ','ໝາຍເຫດ']];
+  sorted.forEach(function(c){ rows.push([c.name,c.trade,c.ringiStatus,c.amount,c.deadline,c.owner,c.revenue,c.profit,c.terms,c.business,c.source,c.notes]); });
+  var ws=XLSX.utils.aoa_to_sheet(rows);
+  var wb=XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb,ws,'ລາຍການເຄສ');
+  XLSX.writeFile(wb,'TIK_AllCases.xlsx');
+}
+
+// ============================================================
+// RINGI
+// ============================================================
+function updatePreview() {
+  var fmt=function(n){ return n?'$'+parseInt(n).toLocaleString():'—'; };
+  document.getElementById('pv-owner').textContent   = document.getElementById('r-owner').value||'—';
+  document.getElementById('pv-company').textContent = document.getElementById('r-company').value||'—';
+  document.getElementById('pv-trade').textContent   = document.getElementById('r-trade').value;
+  document.getElementById('pv-amount').textContent  = fmt(document.getElementById('r-amount').value);
+  document.getElementById('pv-deadline').textContent= document.getElementById('r-deadline').value||'—';
+  document.getElementById('pv-revenue').textContent = fmt(document.getElementById('r-revenue').value);
+  document.getElementById('pv-profit').textContent  = fmt(document.getElementById('r-profit').value);
+  document.getElementById('pv-terms').textContent   = document.getElementById('r-terms').value||'—';
+  document.getElementById('pv-business').textContent= document.getElementById('r-business').value||'—';
+  document.getElementById('pv-notes').textContent   = document.getElementById('r-notes').value||'—';
+}
+function saveRingi() {
+  var rec = {
+    name:        (document.getElementById('r-company').value||'ໃຫມ່')+' — '+document.getElementById('r-trade').value,
+    trade:       document.getElementById('r-trade').value,
+    ringiStatus: document.getElementById('r-ringi-status').value,
+    amount:      parseInt(document.getElementById('r-amount').value)||0,
+    deadline:    document.getElementById('r-deadline').value||'—',
+    owner:       document.getElementById('r-owner').value||'—',
+    revenue:     parseInt(document.getElementById('r-revenue').value)||0,
+    profit:      parseInt(document.getElementById('r-profit').value)||0,
+    terms:       document.getElementById('r-terms').value||'—',
+    source:      document.getElementById('r-source').value||'—',
+    business:    document.getElementById('r-business').value||'—',
+    founded:     document.getElementById('r-founded').value||'—',
+    purpose:     document.getElementById('r-purpose').value||'—',
+    repayment:   document.getElementById('r-repayment').value||'—',
+    notes:       document.getElementById('r-notes').value||'',
+    createdAt:   Date.now()
+  };
+  rec._key = 'k'+Date.now();
+  caseData.push(rec);
+  renderCases();
+  updateDashboard();
+  if (GH_GIST) {
+    saveData(function(){
+      alert('ບັນທຶກ & Sync ສຳເລີດ! ✓');
+      showSection('cases', document.querySelectorAll('.nav-item')[2]);
+    });
+  } else {
+    alert('ບັນທຶກສຳເລີດ! (Local mode)');
+    showSection('cases', document.querySelectorAll('.nav-item')[2]);
+  }
+}
+
+function exportRingiExcel() {
+  var ws=XLSX.utils.aoa_to_sheet([
+    ['ໃບຂໍອານຸມັດ RINGI — TM-Pro TIK Report'],[''],
+    ['ຜູ້ຮັບຜິດຊອບ',document.getElementById('r-owner').value,'ວັນທີ',new Date().toLocaleDateString('lo-LA')],
+    ['ຊື່ບໍລິສັດ',document.getElementById('r-company').value,'ຜູ້ຕິດຕໍ່',document.getElementById('r-contact').value],
+    ['ເຄສເຮັດການຄ້າ',document.getElementById('r-trade').value,'ສະຖານະ',document.getElementById('r-ringi-status').value],
+    ['ສະຖານະໂທ',document.getElementById('r-call-status').value,'ແຫຼ່ງຂໍ້ມູນ',document.getElementById('r-source').value],
+    ['ຈຳນວນເງິນ ($)',parseInt(document.getElementById('r-amount').value)||0,'ກຳນົດ',document.getElementById('r-deadline').value],
+    ['ລາຍຮັບ/ເດືອນ ($)',parseInt(document.getElementById('r-revenue').value)||0,'ກຳໄລ/ເດືອນ ($)',parseInt(document.getElementById('r-profit').value)||0],
+    ['ເງື່ອນໄຂ',document.getElementById('r-terms').value],
+    ['ທຸລະກິດ',document.getElementById('r-business').value,'ປີ',document.getElementById('r-founded').value],
+    ['ຈຸດປະສົງ',document.getElementById('r-purpose').value,'ຊຳລະຄືນ',document.getElementById('r-repayment').value],
+    ['ລາຍລະອຽດອື່ນໆ',document.getElementById('r-notes').value]
+  ]);
+  ws['!cols']=[{wch:22},{wch:30},{wch:22},{wch:30}];
+  var wb=XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb,ws,'RINGI');
+  XLSX.writeFile(wb,'RINGI_'+(document.getElementById('r-company').value||'new')+'.xlsx');
+}
+
+// ============================================================
+// INIT
+// ============================================================
+(function(){
+  var d = new Date();
+  document.getElementById('topbar-date').textContent = d.getFullYear()+'/'+(d.getMonth()+1).toString().padStart(2,'0')+'/'+d.getDate().toString().padStart(2,'0');
+  document.getElementById('dash-updated').textContent = d.toLocaleString('lo-LA');
+  document.getElementById('pv-date').textContent = d.toLocaleDateString('lo-LA');
+  tryAutoLogin();
+})();
+</script>
+</body>
+</html><!-- ===== GITHUB GIST SETUP OVERLAY ===== -->
+
+
+<!-- ===== GITHUB GIST SETUP OVERLAY ===== -->
