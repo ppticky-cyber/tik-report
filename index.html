@@ -179,13 +179,13 @@ tr:hover td{background:#f0f7ff}
       <div class="setup-num">3</div>
       <div class="setup-step-body">
         <div class="setup-step-title">ວາງ Token ລົງ (ທຸກຄົນໃສ່ token ດີງກັນ)</div>
-        <input type="text" id="gh-token" placeholder="ghp_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+        <input type="text" id="gh-token" placeholder="ghp_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" value="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"
           style="width:100%;border:1px solid var(--border);border-radius:var(--radius);padding:10px 12px;font-size:13px;font-family:monospace;margin-top:8px;background:#f8fbff;color:var(--text)">
         <div style="font-size:11px;color:var(--text-faint);margin-top:10px">
           <i class="fa-solid fa-circle-info" style="color:#2196f3"></i>
           ຖ້າມີ <strong>Gist ID</strong> ແລ້ວ (ຈາກເພື່ອນຮ່ວມທີມ) ໃສ່ຊີ້ນີ້:
         </div>
-        <input type="text" id="gh-gistid" placeholder="ໃສ່ Gist ID ຖ້າມີ — ຫວ່ງໄດ້ (ຈະສ້າງໃຫມ່ automatic)"
+        <input type="text" id="gh-gistid" value="a940078aaeaf088e17708690e4a4aca6" placeholder="Gist ID"
           style="width:100%;border:1px solid var(--border);border-radius:var(--radius);padding:8px 12px;font-size:12px;font-family:monospace;margin-top:6px;background:#f8fbff;color:var(--text)">
       </div>
     </div>
@@ -218,7 +218,7 @@ tr:hover td{background:#f0f7ff}
   </div>
   <nav class="sidebar-nav">
     <div class="nav-item active" onclick="showSection('dashboard',this)"><i class="fa-solid fa-chart-pie"></i>ແດຊບອດ</div>
-    <div class="nav-item" onclick="showSection('calllist',this)"><i class="fa-solid fa-phone-volume"></i>ລາຍຊື່ໂທ</div>
+    <div class="nav-item" onclick="showSection('calllist',this)"><i class="fa-solid fa-phone-volume"></i>Call List</div>
     <div class="nav-item" onclick="showSection('cases',this)"><i class="fa-solid fa-folder-open"></i>ລາຍການແຕ່ລະເຄສ</div>
     <div class="nav-item" onclick="showSection('ringi',this)"><i class="fa-solid fa-file-signature"></i>ສ້າງໃບຂໍອານຸມັດ</div>
   </nav>
@@ -284,14 +284,14 @@ tr:hover td{background:#f0f7ff}
 
       <label class="import-zone" for="csvFile">
         <div class="import-icon"><i class="fa-solid fa-cloud-arrow-up"></i></div>
-        <div class="import-title">ລາກ & ວາງລາຍຊື່ໂທທີ່ນີ້</div>
-        <div class="import-sub">CSV / Excel (.xlsx) — ຄລິກເລືອກໄຟລ໌</div>
-        <input type="file" id="csvFile" accept=".csv,.xlsx" style="display:none" onchange="handleImport(this)">
+        <div class="import-title">ລາກ & ວາງ Call List ທີ່ນີ້</div>
+        <div class="import-sub">CSV (.csv) / Excel (.xlsx) — ຄລິກເລືອກໄຟລ໌</div>
+        <input type="file" id="csvFile" accept=".csv,.xlsx,.xls" style="display:none" onchange="handleImport(this)">
       </label>
 
       <div class="section-hdr">
         <div>
-          <div class="section-hdr-title">ລາຍຊື່ທີ່ນຳເຂົ້າແລ້ວ</div>
+          <div class="section-hdr-title">Call List</div>
           <div class="section-hdr-sub" id="call-count">0 ລາຍການ</div>
         </div>
         <div class="btn-group">
@@ -356,9 +356,10 @@ tr:hover td{background:#f0f7ff}
     <div id="ringi" class="section">
       <div class="notice notice-green"><i class="fa-solid fa-rotate"></i>ເມື່ອບັນທຶກ, ຂໍ້ມູນຈະ sync GitHub Gist — ທຸກຄົນໃນທີມເຫັນດີງກັນ!</div>
       <div class="section-hdr">
-        <div class="section-hdr-title">ແບບຟອມໃບຂໍອານຸມັດ RINGI</div>
+        <div class="section-hdr-title" id="ringi-form-title">ແບບຟອມໃບຂໍອານຸມັດ RINGI</div>
         <div class="btn-group">
-          <button class="btn" onclick="saveRingi()"><i class="fa-solid fa-floppy-disk"></i>ບັນທຶກ</button>
+          <button class="btn" id="ringi-cancel-btn" onclick="cancelRingi()" style="display:none;color:var(--red);border-color:#fca5a5"><i class="fa-solid fa-xmark"></i>ຍົກເລີກ</button>
+          <button class="btn" id="ringi-save-btn" onclick="saveRingi()"><i class="fa-solid fa-floppy-disk"></i>ບັນທຶກ</button>
           <button class="btn btn-primary" onclick="exportRingiExcel()"><i class="fa-solid fa-file-excel"></i>ສົ່ງອອກ Excel</button>
         </div>
       </div>
@@ -450,9 +451,12 @@ var callData  = [];
 var caseData  = [];
 var GH_TOKEN  = '';
 var GH_GIST   = '';
+var GH_DEFAULT_TOKEN = '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';
+var GH_DEFAULT_GIST  = 'a940078aaeaf088e17708690e4a4aca6';
 var GH_FILE   = 'tik_report_data.json';
 var GH_URL    = 'https://api.github.com/gists';
 var syncTimer = null;
+var editingKey = null; // key of case being edited (null = new case)
 
 // ============================================================
 // GITHUB GIST — ຕັ້ງຄ່າ & Sync (ແທນ Firebase/JSONBin)
@@ -602,10 +606,12 @@ function startPolling() {
 
 // ---- AUTO LOGIN ----
 function tryAutoLogin() {
-  var k = localStorage.getItem('tik_gh_token');
-  var g = localStorage.getItem('tik_gh_gist');
+  var k = localStorage.getItem('tik_gh_token') || GH_DEFAULT_TOKEN;
+  var g = localStorage.getItem('tik_gh_gist')  || GH_DEFAULT_GIST;
   if (k && g) {
     GH_TOKEN = k; GH_GIST = g;
+    localStorage.setItem('tik_gh_token', k);
+    localStorage.setItem('tik_gh_gist',  g);
     document.getElementById('setup-overlay').style.display = 'none';
     loadData(true);
   }
@@ -665,7 +671,7 @@ function showSection(id, el) {
   document.querySelectorAll('.nav-item').forEach(function(n){ n.classList.remove('active'); });
   document.getElementById(id).classList.add('active');
   if (el) el.classList.add('active');
-  var t = {dashboard:'ແດຊບອດ',calllist:'ລາຍຊື່ໂທ',cases:'ລາຍການແຕ່ລະເຄສ',ringi:'ສ້າງໃບຂໍອານຸມັດ RINGI'};
+  var t = {dashboard:'ແດຊບອດ',calllist:'Call List',cases:'ລາຍການແຕ່ລະເຄສ',ringi:'ສ້າງໃບຂໍອານຸມັດ RINGI'};
   document.getElementById('topbar-title').textContent = t[id]||'';
 }
 function dashToggle(btn) {
@@ -769,6 +775,11 @@ function updateDashboard() {
     if(r.trade==='ລົງທຶນ') o.invest++;
     if(r.trade==='ການຊື້ຂາຍ') o.trade++;
   });
+  // Also include owners from caseData who may not have calls
+  caseData.forEach(function(c){
+    if(!c.owner||c.owner==='—') return;
+    if(!owners[c.owner]) owners[c.owner]={calls:0,conn:0,interest:0,noInterest:0,loan:0,jv:0,invest:0,trade:0};
+  });
   var ownerRows = Object.keys(owners).map(function(name){
     var o = owners[name];
     var rate = o.calls ? Math.round(o.conn/o.calls*100) : 0;
@@ -824,31 +835,42 @@ function saveCall() {
 }
 function handleImport(input) {
   var file = input.files[0]; if(!file) return;
+  var isCSV = file.name.toLowerCase().endsWith('.csv');
   var reader = new FileReader();
   reader.onload = function(e) {
     try {
-      var wb = XLSX.read(e.target.result, {type:'binary'});
+      var wb;
+      if (isCSV) {
+        wb = XLSX.read(e.target.result, {type:'string'});
+      } else {
+        wb = XLSX.read(e.target.result, {type:'binary'});
+      }
       var ws = wb.Sheets[wb.SheetNames[0]];
-      var rows = XLSX.utils.sheet_to_json(ws);
-      rows.forEach(function(r) {
+      var rows = XLSX.utils.sheet_to_json(ws, {defval:''});
+      var now = Date.now();
+      rows.forEach(function(r, i) {
         var rec = {
-          source:  r['ແຫຼ່ງຂໍ້ມູນ']||r['source']||'—',
-          company: r['ຊື່ບໍລິສັດ']||r['company']||'—',
-          contact: r['ຜູ້ຕິດຕໍ່']||r['contact']||'—',
-          status:  r['ສະຖານະ']||r['status']||'—',
-          result:  r['ຜົນ']||r['result']||'—',
-          trade:   r['ເຄສເຮັດການຄ້າ']||r['trade']||'—',
-          owner:   r['ຜູ້ຮັບຜິດຊອບ']||r['owner']||'—',
-          createdAt: Date.now()
+          source:  r['ແຫຼ່ງຂໍ້ມູນ']||r['Source']||r['source']||'—',
+          company: r['ຊື່ບໍລິສັດ']||r['Company']||r['company']||'—',
+          contact: r['ຜູ້ຕິດຕໍ່']||r['Contact']||r['contact']||'—',
+          status:  r['ສະຖານະ']||r['Status']||r['status']||'—',
+          result:  r['ຜົນ']||r['Result']||r['result']||'—',
+          trade:   r['ເຄສເຮັດການຄ້າ']||r['Trade']||r['trade']||'—',
+          owner:   r['ຜູ້ຮັບຜິດຊອບ']||r['Owner']||r['owner']||'—',
+          createdAt: now + i
         };
-        rec._key = 'c'+Date.now()+'_'+i;
+        rec._key = 'c'+now+'_'+i;
         callData.push(rec);
       });
       renderCallTable(); updateDashboard(); saveData(null);
       alert('ນຳເຂົ້າສຳເລັດ: '+rows.length+' ລາຍການ');
     } catch(err) { alert('ເກີດຂໍ້ຜິດພາດ: '+err.message); }
   };
-  reader.readAsBinaryString(file);
+  if (isCSV) {
+    reader.readAsText(file, 'UTF-8');
+  } else {
+    reader.readAsBinaryString(file);
+  }
 }
 function exportCallList() {
   var ws = XLSX.utils.json_to_sheet(callData.map(function(r){ return {'ແຫຼ່ງຂໍ້ມູນ':r.source,'ຊື່ບໍລິສັດ':r.company,'ຜູ້ຕິດຕໍ່':r.contact,'ສະຖານະ':r.status,'ຜົນ':r.result,'ເຄສເຮັດການຄ້າ':r.trade,'ຜູ້ຮັບຜິດຊອບ':r.owner}; }));
@@ -882,6 +904,7 @@ function renderCases() {
       +'</div>'
       +(c.notes?'<div style="font-size:12px;color:var(--amber);padding:8px 12px;background:var(--amber-light);border-radius:var(--radius);margin-bottom:10px;border-left:3px solid #f59e0b">'+c.notes+'</div>':'')
       +'<div class="case-footer"><div class="btn-group">'
+      +'<button class="btn btn-sm" onclick="editCase(this.dataset.k)" data-k="'+key+'"><i class="fa-solid fa-pen-to-square"></i>ແກ້ໄຂ</button>'
       +'<button class="btn btn-sm" onclick="exportSingleCase(this.dataset.k)" data-k="'+key+'"><i class="fa-solid fa-file-excel"></i>Excel</button>'
       +'<button class="btn btn-sm" onclick="changeCaseStatus(this.dataset.k)" data-k="'+key+'"><i class="fa-solid fa-rotate"></i>ສະຖານະ</button>'
       +'<button class="btn btn-sm" style="color:var(--red)" onclick="deleteCase(this.dataset.k)" data-k="'+key+'"><i class="fa-solid fa-trash"></i>ລຶບ</button>'
@@ -943,11 +966,62 @@ function updatePreview() {
   document.getElementById('pv-business').textContent= document.getElementById('r-business').value||'—';
   document.getElementById('pv-notes').textContent   = document.getElementById('r-notes').value||'—';
 }
+// ---- Edit existing case ----
+function editCase(key) {
+  var c = caseData.find(function(x){ return x._key===key; });
+  if (!c) return;
+  editingKey = key;
+  // Fill RINGI form with case data
+  document.getElementById('r-owner').value    = c.owner||'';
+  document.getElementById('r-source').value   = c.source||'';
+  document.getElementById('r-company').value  = (c.name||'').split(' — ')[0]||'';
+  document.getElementById('r-contact').value  = c.contact||'';
+  document.getElementById('r-trade').value    = c.trade||'ຕ້ອງການກູ້ຍືມ';
+  document.getElementById('r-ringi-status').value = c.ringiStatus||'Ringi Pending';
+  document.getElementById('r-call-status').value  = c.callStatus||'ຮັບສາຍໄດ້ລົມ';
+  document.getElementById('r-amount').value   = c.amount||'';
+  document.getElementById('r-deadline').value = c.deadline||'';
+  document.getElementById('r-revenue').value  = c.revenue||'';
+  document.getElementById('r-profit').value   = c.profit||'';
+  document.getElementById('r-terms').value    = c.terms||'';
+  document.getElementById('r-business').value = c.business||'';
+  document.getElementById('r-founded').value  = c.founded||'';
+  document.getElementById('r-purpose').value  = c.purpose||'';
+  document.getElementById('r-repayment').value= c.repayment||'';
+  document.getElementById('r-notes').value    = c.notes||'';
+  // Update form title and button
+  document.getElementById('ringi-form-title').textContent = 'ແກ້ໄຂໃບຂໍອານຸມັດ RINGI';
+  document.getElementById('ringi-save-btn').innerHTML = '<i class="fa-solid fa-floppy-disk"></i>ອັບເດດ';
+  document.getElementById('ringi-cancel-btn').style.display = 'inline-flex';
+  updatePreview();
+  showSection('ringi', document.querySelectorAll('.nav-item')[3]);
+}
+
+function cancelRingi() {
+  editingKey = null;
+  clearRingiForm();
+  document.getElementById('ringi-form-title').textContent = 'ແບບ༉ອມໃບຂ໪ອານຸມັດ RINGI';
+  document.getElementById('ringi-save-btn').innerHTML = '<i class="fa-solid fa-floppy-disk"></i>ບັນທຶກ';
+  document.getElementById('ringi-cancel-btn').style.display = 'none';
+  showSection('cases', document.querySelectorAll('.nav-item')[2]);
+}
+
+function clearRingiForm() {
+  ['r-owner','r-source','r-company','r-contact','r-amount','r-deadline',
+   'r-revenue','r-profit','r-terms','r-business','r-founded','r-purpose',
+   'r-repayment','r-notes'].forEach(function(id){
+    document.getElementById(id).value = '';
+  });
+  document.getElementById('r-trade').value = 'ຕ້ອງການກູ້ຍືມ';
+  document.getElementById('r-ringi-status').value = 'Ringi Pending';
+}
+
 function saveRingi() {
-  var rec = {
-    name:        (document.getElementById('r-company').value||'ໃຫມ່')+' — '+document.getElementById('r-trade').value,
+  var fields = {
+    name:        (document.getElementById('r-company').value||'ໃໝ່')+' — '+document.getElementById('r-trade').value,
     trade:       document.getElementById('r-trade').value,
     ringiStatus: document.getElementById('r-ringi-status').value,
+    callStatus:  document.getElementById('r-call-status').value,
     amount:      parseInt(document.getElementById('r-amount').value)||0,
     deadline:    document.getElementById('r-deadline').value||'—',
     owner:       document.getElementById('r-owner').value||'—',
@@ -959,20 +1033,39 @@ function saveRingi() {
     founded:     document.getElementById('r-founded').value||'—',
     purpose:     document.getElementById('r-purpose').value||'—',
     repayment:   document.getElementById('r-repayment').value||'—',
-    notes:       document.getElementById('r-notes').value||'',
-    createdAt:   Date.now()
+    notes:       document.getElementById('r-notes').value||''
   };
-  rec._key = 'k'+Date.now();
-  caseData.push(rec);
+
+  var wasEditing = !!editingKey;
+  if (editingKey) {
+    // UPDATE existing case
+    var idx = caseData.findIndex(function(c){ return c._key===editingKey; });
+    if (idx > -1) {
+      caseData[idx] = Object.assign(caseData[idx], fields);
+    }
+    editingKey = null;
+    document.getElementById('ringi-form-title').textContent = 'ແບບຟອມໃບຂໍອານຸມັດ RINGI';
+    document.getElementById('ringi-save-btn').innerHTML = '<i class="fa-solid fa-floppy-disk"></i>ບັນທຶກ';
+    document.getElementById('ringi-cancel-btn').style.display = 'none';
+    clearRingiForm();
+  } else {
+    // CREATE new case
+    fields._key = 'k'+Date.now();
+    fields.createdAt = Date.now();
+    caseData.push(fields);
+  }
+
   renderCases();
   updateDashboard();
+  var msg = wasEditing ? 'ອັບເດດ & Sync ສຳເລີດ! ✓' : 'ບັນທຶກ & Sync ສຳເລີດ! ✓';
+  var msgLocal = wasEditing ? 'ອັບເດດສຳເລີດ!' : 'ບັນທຶກສຳເລີດ! (Local)';
   if (GH_GIST) {
     saveData(function(){
-      alert('ບັນທຶກ & Sync ສຳເລີດ! ✓');
+      alert(msg);
       showSection('cases', document.querySelectorAll('.nav-item')[2]);
     });
   } else {
-    alert('ບັນທຶກສຳເລີດ! (Local mode)');
+    alert(msgLocal);
     showSection('cases', document.querySelectorAll('.nav-item')[2]);
   }
 }
