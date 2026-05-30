@@ -478,10 +478,13 @@ function connectGist() {
     loadData(true);
   } else {
     // Create new Gist
+    var initContent = JSON.stringify({calls:[], cases:[], updatedAt:Date.now()});
     ghFetch(GH_URL, 'POST', {
       description: 'TM-Pro TIK Report Data',
       public: false,
-      files: {}
+      files: {
+        'tik_report_data.json': { content: initContent }
+      }
     }, function(data) {
       if (!data || !data.id) {
         showErr('ສ້າງ Gist ຜິດພາດ: ' + JSON.stringify(data));
