@@ -179,7 +179,7 @@ tr:hover td{background:#f0f7ff}
       <div class="setup-num">3</div>
       <div class="setup-step-body">
         <div class="setup-step-title">ວາງ Token ລົງ (ທຸກຄົນໃສ່ token ດີງກັນ)</div>
-        <input type="text" id="gh-token" placeholder="ghp_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" value="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"
+        <input type="text" id="gh-token" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx..."
           style="width:100%;border:1px solid var(--border);border-radius:var(--radius);padding:10px 12px;font-size:13px;font-family:monospace;margin-top:8px;background:#f8fbff;color:var(--text)">
         <div style="font-size:11px;color:var(--text-faint);margin-top:10px">
           <i class="fa-solid fa-circle-info" style="color:#2196f3"></i>
@@ -234,6 +234,7 @@ tr:hover td{background:#f0f7ff}
       <button class="btn btn-sm" onclick="exportLocalData()" title="ສົງອອກຂໍ້ມູນ JSON"><i class="fa-solid fa-file-export"></i></button>
       <button class="btn btn-sm" onclick="importLocalData()" title="ນຳເຂ້າຂໍ້ມູນ JSON"><i class="fa-solid fa-file-import"></i></button>
     </div>
+    <button class="btn btn-sm" onclick="clearCredentials()" title="ປ່ຽນ Token / Reset" style="padding:5px 10px;font-size:12px"><i class="fa-solid fa-gear"></i></button>
     <span class="topbar-meta" id="topbar-date"></span>
     </div>
   </div>
@@ -451,8 +452,8 @@ var callData  = [];
 var caseData  = [];
 var GH_TOKEN  = '';
 var GH_GIST   = '';
-var GH_DEFAULT_TOKEN = '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';
-var GH_DEFAULT_GIST  = 'a940078aaeaf088e17708690e4a4aca6';
+var GH_DEFAULT_TOKEN = ''; // ບໍ່ hardcode token — ຜູ້ໃຊ້ໃສ່ເອງ
+var GH_DEFAULT_GIST  = 'a940078aaeaf088e17708690e4a4aca6'; // Gist ID ທີມ
 var GH_FILE   = 'tik_report_data.json';
 var GH_URL    = 'https://api.github.com/gists';
 var syncTimer = null;
@@ -461,6 +462,34 @@ var editingKey = null; // key of case being edited (null = new case)
 // ============================================================
 // GITHUB GIST — ຕັ້ງຄ່າ & Sync (ແທນ Firebase/JSONBin)
 // ============================================================
+
+// ---- Config overlay helpers ----
+function showConfigOverlay(errorMsg) {
+  var el = document.getElementById('setup-overlay');
+  if (el) el.style.display = 'flex';
+  if (errorMsg) {
+    var errEl = document.getElementById('config-error');
+    if (errEl) {
+      errEl.innerHTML = '<i class="fa-solid fa-circle-exclamation"></i> ' + errorMsg;
+      errEl.style.display = 'block';
+    }
+  }
+  // Clear the token field so user must re-enter
+  var tokenEl = document.getElementById('gh-token');
+  if (tokenEl) tokenEl.value = '';
+  var btn = document.getElementById('connect-btn');
+  if (btn) { btn.innerHTML = '<i class="fa-brands fa-github"></i>ເຊື່ອມຕໍ່ GitHub Gist'; btn.disabled = false; }
+}
+
+function clearCredentials() {
+  localStorage.removeItem('tik_gh_token');
+  localStorage.removeItem('tik_gh_gist');
+  GH_TOKEN = ''; GH_GIST = '';
+  localStorage.setItem('tik_token_cleared','1');
+  if (syncTimer) { clearInterval(syncTimer); syncTimer = null; }
+  showConfigOverlay(null);
+}
+
 function connectGist() {
   var token  = document.getElementById('gh-token').value.trim();
   var gistId = document.getElementById('gh-gistid').value.trim();
@@ -525,8 +554,18 @@ function ghFetch(url, method, body, onSuccess, onError) {
   xhr.onload = function() {
     try {
       var data = JSON.parse(xhr.responseText);
-      if (xhr.status >= 200 && xhr.status < 300) onSuccess(data);
-      else onError('HTTP ' + xhr.status + ': ' + (data.message || xhr.statusText));
+      if (xhr.status >= 200 && xhr.status < 300) {
+        onSuccess(data);
+      } else if (xhr.status === 401) {
+        // Token expired/invalid — clear and re-prompt
+        localStorage.removeItem('tik_gh_token');
+        localStorage.removeItem('tik_gh_gist');
+        GH_TOKEN = ''; GH_GIST = '';
+        setSyncStatus('err', 'Token ໝົດອາຍຸ');
+        showConfigOverlay('Token ໝົດອາຍຸ ຫຼື ບໍ່ຖືກຕ້ອງ (401) — ກະລຸນາໃສ່ Token ໃໝ່');
+      } else {
+        onError('HTTP ' + xhr.status + ': ' + (data.message || xhr.statusText));
+      }
     } catch(e) { onError('Parse error: ' + e.message); }
   };
   xhr.onerror = function() { onError('Network blocked — Tiiny.host ສະກັດ API ທຸກຊະນິດ. ໃຊ້ Netlify ແທນ (ດູຄຳແນະນຳດ້ານລ່າງ)'); };
@@ -606,14 +645,18 @@ function startPolling() {
 
 // ---- AUTO LOGIN ----
 function tryAutoLogin() {
-  var k = localStorage.getItem('tik_gh_token') || GH_DEFAULT_TOKEN;
-  var g = localStorage.getItem('tik_gh_gist')  || GH_DEFAULT_GIST;
+  var k = localStorage.getItem('tik_gh_token');
+  var g = localStorage.getItem('tik_gh_gist') || GH_DEFAULT_GIST;
   if (k && g) {
+    // Have saved credentials → auto-connect
     GH_TOKEN = k; GH_GIST = g;
-    localStorage.setItem('tik_gh_token', k);
-    localStorage.setItem('tik_gh_gist',  g);
     document.getElementById('setup-overlay').style.display = 'none';
     loadData(true);
+  } else {
+    // No token saved → show overlay, pre-fill Gist ID only
+    document.getElementById('setup-overlay').style.display = 'flex';
+    var gistEl = document.getElementById('gh-gistid');
+    if (gistEl && !gistEl.value) gistEl.value = GH_DEFAULT_GIST;
   }
 }
 
