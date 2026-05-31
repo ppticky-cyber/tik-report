@@ -644,6 +644,7 @@ function saveData(cb) {
     if (cb) cb();
   }, function(err) {
     setSyncStatus('err', 'Save ຜິດ: ' + err);
+    if (cb) cb(); // always navigate even on error
   });
 }
 
@@ -1173,7 +1174,7 @@ function saveRingi() {
     terms:       document.getElementById('r-terms').value||'—',
     source:      document.getElementById('r-source').value||'—',
     business:    document.getElementById('r-business').value||'—',
-    founded:     document.getElementById('r-founded').value||'—',
+    founded:     '—', // field removed
     purpose:     document.getElementById('r-purpose').value||'—',
     repayment:   document.getElementById('r-repayment').value||'—',
     notes:       document.getElementById('r-notes').value||'',
