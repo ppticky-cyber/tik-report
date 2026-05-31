@@ -9,6 +9,7 @@
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 
 
 <style>
@@ -307,7 +308,11 @@ tr:hover td{background:#f0f7ff}
         <tbody id="call-tbody"></tbody></table>
       </div>
 
-      <!-- ADD CALL MODAL -->
+      
+<!-- RINGI Language Selector Modal -->
+
+
+<!-- ADD CALL MODAL -->
       <div id="addCallModal" class="modal">
         <div class="modal-content">
           <div class="modal-header"><span class="modal-title">ເພີ່ມລາຍການໃໝ່</span><button class="btn btn-sm" onclick="closeAddCallModal()"><i class="fa-solid fa-xmark"></i></button></div>
@@ -428,6 +433,10 @@ tr:hover td{background:#f0f7ff}
         ss="form-group"><label>ລາຍລະອຽດອື່ນໆ</label>
           <textarea id="r-notes" placeholder="ເນື້ອໃນການນັດພົບ, ຂໍ້ສັງເກດ, ຂໍ້ກັງວົນ..." oninput="updatePreview()"></textarea>
         </div>
+        <div class="form-group" style="margin-top:10px">
+          <label>ໝາຍເຫດ / Free Space <span style="font-weight:400;text-transform:none;font-size:11px;color:var(--text-faint)">(ຂໍ້ມູນເພີ່ມ — ສະແດງໃນ Word RINGI)</span></label>
+          <textarea id="r-freespace" placeholder="ຂໍ້ມູນເພີ່ມ, ຂໍ້ສັງເກດພິເສດ..." style="min-height:100px"></textarea>
+        </div>
         <div class="form-group" style="margin-top:8px"><label>ໄຟລ໌ແນບ</label><input type="file" style="font-size:12px;padding:6px"></div>
       </div>
 
@@ -470,6 +479,216 @@ var GH_FILE   = 'tik_report_data.json';
 var GH_URL    = 'https://api.github.com/gists';
 var syncTimer = null;
 var editingKey = null; // key of case being edited (null = new case)
+
+
+// ============================================================
+// WORD RINGI GENERATOR (browser-based using JSZip)
+// ============================================================
+var currentRingiKey = null;
+
+var RINGI_T = {
+  lo: { title:'ໃບຂໍອານຸມັດ RINGI', date:'ວັນທີ', owner:'ຜູ້ຮັບຜິດຊອບ', source:'ແຫຼ່ງທີ່ມາ', companyName:'ຊື່ບໍລິສັດ', contact:'ຜູ້ຕິດຕໍ່', purpose:'ຈຸດປະສົງລູກຄ້າ', status:'ສະຖານະ', amount:'ວົງເງິນ ($)', deadline:'ກຳນົດ', revenue:'ລາຍຮັບ/ເດືອນ ($)', profit:'ກຳໄລ/ເດືອນ ($)', terms:'ເງື່ອນໄຂ', business:'ທຸລະກິດ', purposeUse:'ຈຸດປະສົງທຶນ', repayment:'ຊຳລະຄືນ', assetType:'ປະເພດ', assetValue:'ມູນຄ່າ ($)', notes:'ລາຍລະອຽດ', freeSpace:'ໝາຍເຫດ / Free Space', ap1:'ຜູ້ຕາກອານ', ap2:'ຜູ້ອຳນວຍການ', ap3:'ກຳມະການ', stamp:'(ຕາ)', s1:'1. ຂໍ້ມູນພື້ນຖານ', s2:'2. ເງື່ອນໄຂທາງການເງິນ', s3:'3. ຂໍ້ມູນລູກຄ້າ', s4:'4. ຊັບສິນຄ້ຳປະກັນ', s5:'5. ໝາຍເຫດ', s6:'6. ລາຍເຊັນ' },
+  en: { title:'RINGI — Approval Request', date:'Date', owner:'Person In Charge', source:'Lead Source', companyName:'Company', contact:'Contact', purpose:'Purpose', status:'Status', amount:'Amount ($)', deadline:'Deadline', revenue:'Revenue/Month ($)', profit:'Profit/Month ($)', terms:'Terms', business:'Business', purposeUse:'Fund Purpose', repayment:'Repayment', assetType:'Type', assetValue:'Value ($)', notes:'Notes', freeSpace:'Remarks / Free Space', ap1:'Applicant', ap2:'Director', ap3:'Board', stamp:'(Stamp)', s1:'1. Basic Information', s2:'2. Financial Conditions', s3:'3. Customer Information', s4:'4. Collateral Assets', s5:'5. Remarks', s6:'6. Approvals' },
+  ja: { title:'\u7a1f\u8b70\u66f8 (RINGI)', date:'\u65e5\u4ed8', owner:'\u62c5\u5f53\u8005', source:'\u60c5\u5831\u6e90', companyName:'\u4f1a\u793e\u540d', contact:'\u5148\u65b9\u62c5\u5f53', purpose:'\u9867\u5ba2\u76ee\u7684', status:'\u30b9\u30c6\u30fc\u30bf\u30b9', amount:'\u7533\u8acb\u91d1\u984d ($)', deadline:'\u671f\u9650', revenue:'\u6708\u5546 ($)', profit:'\u6708\u6b21\u5229\u76ca ($)', terms:'\u6761\u4ef6', business:'\u4e8b\u696d\u5185\u5bb9', purposeUse:'\u8cc7\u91d1\u4f7f\u9014', repayment:'\u8fd4\u6e08\u539f\u8cc7', assetType:'\u7a2e\u985e', assetValue:'\u8a55\u4fa1\u984d ($)', notes:'\u5099\u8003', freeSpace:'\u81ea\u7531\u8a18\u8f09\u6b04 (Free Space)', ap1:'\u7533\u8acb\u8005', ap2:'\u90e8\u9577', ap3:'\u53d6\u7de0\u5f79', stamp:'\uff08\u5370\uff09', s1:'\uff11. \u57fa\u672c\u60c5\u5831', s2:'\uff12. \u91d1\u878d\u6761\u4ef6', s3:'\uff13. \u9867\u5ba2\u60c5\u5831', s4:'\uff14. \u62c5\u4fdd\u8cc7\u7523', s5:'\uff15. \u81ea\u7531\u8a18\u8f09\u6b04', s6:'\uff16. \u627f\u8a8d\u6b04' }
+};
+
+function openRingiWordModal(key) {
+  currentRingiKey = key;
+  document.getElementById('ringiLangModal').classList.add('show');
+}
+
+function doGenWord(lang) {
+  document.getElementById('ringiLangModal').classList.remove('show');
+  var c = caseData.find(function(x){ return x._key===currentRingiKey; });
+  if (!c) return alert('\u0ec4\u0ea1\u0ec8\u0e9eົ່\u0ea1\u0eb5\u0e82\u0ecd້\u0ea1\u0eb9\u0e99\u0ec0\u0e84\u0eaa');
+  generateRingiDocx(c, lang);
+}
+
+function generateRingiDocx(c, lang) {
+  try {
+  var t = RINGI_T[lang] || RINGI_T.lo;
+  var fmt = function(n){ return n ? '$'+Number(n).toLocaleString() : '\u2014'; };
+  var today = new Date().toLocaleDateString();
+  var assets = c.assets || [];
+
+  // Build Word XML
+  var BLUE = '1565C0', LBLUE = 'DBEAFE';
+  var CW = 7938; // content width in twips (A4 - margins)
+
+  function xml(tag, attrs, inner) {
+    var a = '';
+    if (attrs) Object.keys(attrs).forEach(function(k){ a += ' '+k+'="'+attrs[k]+'"'; });
+    if (inner === undefined) return '<'+tag+a+'/>';
+    return '<'+tag+a+'>'+inner+'</'+tag+'>';
+  }
+
+  function trun(text, opts) {
+    opts = opts || {};
+    var rpr = '<w:rPr>';
+    if (opts.bold) rpr += '<w:b/>';
+    if (opts.size) rpr += '<w:sz w:val="'+(opts.size)+'"/><w:szCs w:val="'+(opts.size)+'"/>';
+    if (opts.color) rpr += '<w:color w:val="'+opts.color+'"/>';
+    rpr += '<w:rFonts w:ascii="Arial" w:hAnsi="Arial" w:cs="Arial"/>';
+    rpr += '</w:rPr>';
+    var safe = String(text||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    return '<w:r>'+rpr+'<w:t xml:space="preserve">'+safe+'</w:t></w:r>';
+  }
+
+  function para(runs, opts) {
+    opts = opts || {};
+    var ppr = '<w:pPr>';
+    if (opts.align) ppr += '<w:jc w:val="'+opts.align+'"/>';
+    if (opts.before||opts.after) ppr += '<w:spacing w:before="'+(opts.before||0)+'" w:after="'+(opts.after||0)+'"/>';
+    if (opts.border) ppr += '<w:pBdr><w:bottom w:val="single" w:sz="8" w:color="'+BLUE+'"/></w:pBdr>';
+    ppr += '</w:pPr>';
+    return '<w:p>'+ppr+runs+'</w:p>';
+  }
+
+  function cell(text, opts) {
+    opts = opts || {};
+    var w = opts.w || Math.floor(CW/2);
+    var tcpr = '<w:tcPr><w:tcW w:w="'+w+'" w:type="dxa"/>';
+    if (opts.bg) tcpr += '<w:shd w:val="clear" w:color="auto" w:fill="'+opts.bg+'"/>';
+    tcpr += '<w:tcMar><w:top w:w="80" w:type="dxa"/><w:bottom w:w="80" w:type="dxa"/><w:left w:w="140" w:type="dxa"/><w:right w:w="140" w:type="dxa"/></w:tcMar>';
+    tcpr += '</w:tcPr>';
+    return '<w:tc>'+tcpr+'<w:p><w:pPr>'+(opts.align?'<w:jc w:val="'+opts.align+'"/>':'')+'</w:pPr>'+trun(text||'—', {bold:opts.bold, size:opts.size||20, color:opts.color||'111111'})+'</w:p></w:tc>';
+  }
+
+  var LW = Math.floor(CW*0.35), VW = CW - LW;
+  var QW = Math.floor(CW/4);
+
+  function lv(l, v) {
+    return '<w:tr>'+cell(l,{bg:LBLUE,bold:true,size:18,color:'1A3A5C',w:LW})+cell(v,{w:VW})+'</w:tr>';
+  }
+  function lv2(l1,v1,l2,v2) {
+    return '<w:tr>'+cell(l1,{bg:LBLUE,bold:true,size:18,color:'1A3A5C',w:QW})+cell(v1,{w:QW})+cell(l2,{bg:LBLUE,bold:true,size:18,color:'1A3A5C',w:QW})+cell(v2,{w:QW})+'</w:tr>';
+  }
+
+  function table(rows, totalW) {
+    totalW = totalW || CW;
+    var bdr = '<w:top w:val="single" w:sz="4" w:color="A0BCD8"/><w:left w:val="single" w:sz="4" w:color="A0BCD8"/><w:bottom w:val="single" w:sz="4" w:color="A0BCD8"/><w:right w:val="single" w:sz="4" w:color="A0BCD8"/><w:insideH w:val="single" w:sz="4" w:color="A0BCD8"/><w:insideV w:val="single" w:sz="4" w:color="A0BCD8"/>';
+    return '<w:tbl><w:tblPr><w:tblW w:w="'+totalW+'" w:type="dxa"/><w:tblBorders>'+bdr+'</w:tblBorders></w:tblPr>'+rows.join('')+'</w:tbl>';
+  }
+
+  function sectionHead(text) {
+    return para(trun(text,{bold:true,size:24,color:BLUE}), {before:180, after:60, border:true});
+  }
+
+  var body = '';
+
+  // Title
+  body += para(trun(t.title, {bold:true, size:52, color:BLUE}), {align:'center', after:40});
+  body += para(trun('TM-Pro | '+today, {size:20, color:'666666'}), {align:'center', after:200, border:true});
+
+  // S1
+  body += sectionHead(t.s1);
+  body += table([
+    lv2(t.date, today, t.owner, c.owner||'—'),
+    lv2(t.source, c.source||'—', t.companyName, c.company||(c.name||'').split(' — ')[0]||'—'),
+    lv2(t.contact, c.contact||'—', t.purpose, c.trade||'—'),
+    lv(t.status, c.ringiStatus||'—')
+  ]);
+
+  // S2
+  body += sectionHead(t.s2);
+  body += table([
+    lv2(t.amount, fmt(c.amount), t.deadline, c.deadline||'—'),
+    lv2(t.revenue, fmt(c.revenue), t.profit, fmt(c.profit)),
+    lv(t.terms, c.terms||'—')
+  ]);
+
+  // S3
+  body += sectionHead(t.s3);
+  body += table([
+    lv(t.business, c.business||'—'),
+    lv(t.purposeUse, c.purpose||'—'),
+    lv(t.repayment, c.repayment||'—')
+  ]);
+
+  // S4
+  body += sectionHead(t.s4);
+  if (assets.length) {
+    var AW = Math.floor(CW/2);
+    var aRows = ['<w:tr>'+cell(t.assetType,{bg:LBLUE,bold:true,size:18,color:'1A3A5C',w:AW})+cell(t.assetValue,{bg:LBLUE,bold:true,size:18,color:'1A3A5C',w:AW})+'</w:tr>'];
+    assets.forEach(function(a){ aRows.push('<w:tr>'+cell(a.type||'—',{w:AW})+cell(fmt(a.value),{w:AW})+'</w:tr>'); });
+    body += table(aRows);
+    var tot = assets.reduce(function(s,a){ return s+(Number(a.value)||0); }, 0);
+    body += para(trun('Total: '+fmt(tot), {bold:true, size:20, color:BLUE}), {before:60, after:80});
+  } else {
+    body += table([lv(t.assetType+'/'+t.assetValue, '—')]);
+  }
+
+  // S5 Notes + Free Space
+  body += sectionHead(t.s5);
+  body += table([lv(t.notes, c.notes||'—')]);
+  body += para(trun(t.freeSpace+':', {bold:true, size:20, color:'1A3A5C'}), {before:120, after:40});
+  // Free space box (tall cell)
+  var freeText = (c.freeSpace||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;') || ' ';
+  body += '<w:tbl><w:tblPr><w:tblW w:w="'+CW+'" w:type="dxa"/><w:tblBorders><w:top w:val="single" w:sz="4" w:color="A0BCD8"/><w:left w:val="single" w:sz="4" w:color="A0BCD8"/><w:bottom w:val="single" w:sz="4" w:color="A0BCD8"/><w:right w:val="single" w:sz="4" w:color="A0BCD8"/></w:tblBorders></w:tblPr><w:tr><w:trPr><w:trHeight w:val="2800" w:hRule="atLeast"/></w:trPr><w:tc><w:tcPr><w:tcW w:w="'+CW+'" w:type="dxa"/><w:tcMar><w:top w:w="120" w:type="dxa"/><w:bottom w:w="120" w:type="dxa"/><w:left w:w="160" w:type="dxa"/><w:right w:w="160" w:type="dxa"/></w:tcMar></w:tcPr><w:p><w:r><w:rPr><w:rFonts w:ascii="Arial" w:hAnsi="Arial"/><w:sz w:val="20"/></w:rPr><w:t xml:space="preserve">'+freeText+'</w:t></w:r></w:p></w:tc></w:tr></w:tbl>';
+
+  // S6 Approvals
+  body += sectionHead(t.s6);
+  var BW = Math.floor(CW/3);
+  var apLabels = [t.ap1, t.ap2, t.ap3];
+  var apRow1 = '<w:tr>'+apLabels.map(function(l){ return cell(l,{bg:LBLUE,bold:true,size:18,color:'1A3A5C',align:'center',w:BW}); }).join('')+'</w:tr>';
+  var apRow2 = '<w:tr><w:trPr><w:trHeight w:val="1800" w:hRule="exact"/></w:trPr>'+[t.stamp,t.stamp,t.stamp].map(function(s){ return '<w:tc><w:tcPr><w:tcW w:w="'+BW+'" w:type="dxa"/><w:vAlign w:val="bottom"/></w:tcPr><w:p><w:pPr><w:jc w:val="center"/></w:pPr>'+trun(s,{size:18,color:'AAAAAA'})+'</w:p></w:tc>'; }).join('')+'</w:tr>';
+  body += table([apRow1, apRow2]);
+
+  // Package into .docx (using JSZip)
+  var docXml = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+    + '<w:document xmlns:wpc="http://schemas.microsoft.com/office/word/2010/wordprocessingCanvas" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" xmlns:m="http://schemas.openxmlformats.org/officeDocument/2006/math" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:wp14="http://schemas.microsoft.com/office/word/2010/wordprocessingDrawing" xmlns:wp="http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing" xmlns:w10="urn:schemas-microsoft-com:office:word" xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main" xmlns:w14="http://schemas.microsoft.com/office/word/2010/wordml" xmlns:wpg="http://schemas.microsoft.com/office/word/2010/wordprocessingGroup" xmlns:wpi="http://schemas.microsoft.com/office/word/2010/wordprocessingInk" xmlns:wne="http://schemas.microsoft.com/office/word/2006/wordml" xmlns:wps="http://schemas.microsoft.com/office/word/2010/wordprocessingShape" mc:Ignorable="w14 wp14">'
+    + '<w:body>'
+    + body
+    + '<w:sectPr><w:pgSz w:w="11906" w:h="16838"/><w:pgMar w:top="1134" w:right="1134" w:bottom="1134" w:left="1134" w:header="709" w:footer="709" w:gutter="0"/></w:sectPr>'
+    + '</w:body></w:document>';
+
+  var contentTypes = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+    + '<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">'
+    + '<Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>'
+    + '<Default Extension="xml" ContentType="application/xml"/>'
+    + '<Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/>'
+    + '</Types>';
+
+  var rels = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+    + '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">'
+    + '<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/>'
+    + '</Relationships>';
+
+  var wordRels = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+    + '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">'
+    + '</Relationships>';
+
+  var settings = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+    + '<w:settings xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">'
+    + '<w:defaultTabStop w:val="720"/>'
+    + '</w:settings>';
+
+  if (typeof JSZip === 'undefined') {
+    alert('Aka JSZip bori load — ລອງ refresh browser');
+    return;
+  }
+  var zip = new JSZip();
+  zip.file('[Content_Types].xml', contentTypes);
+  zip.file('_rels/.rels', rels);
+  zip.file('word/document.xml', docXml);
+  zip.file('word/_rels/document.xml.rels', wordRels);
+  zip.file('word/settings.xml', settings);
+
+  zip.generateAsync({ type: 'blob', mimeType: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' })
+    .then(function(blob) {
+      var url = URL.createObjectURL(blob);
+      var a = document.createElement('a');
+      a.href = url;
+      var fname = 'RINGI_' + (c.company || c.name || 'case').replace(/\s/g,'_').replace(/[^\w_]/g,'') + '_' + lang.toUpperCase() + '.docx';
+      a.download = fname;
+      a.click();
+      URL.revokeObjectURL(url);
+    });
+  } catch(e) {
+    alert('ຜິດພາດສ້າງ Word: ' + e.message);
+    console.error(e);
+  }
+}
 
 // ============================================================
 // GITHUB GIST — ຕັ້ງຄ່າ & Sync (ແທນ Firebase/JSONBin)
@@ -1046,6 +1265,7 @@ function renderCases() {
       +(c.notes?'<div style="font-size:12px;color:var(--amber);padding:8px 12px;background:var(--amber-light);border-radius:var(--radius);margin-bottom:10px;border-left:3px solid #f59e0b">'+c.notes+'</div>':'')
       +'<div class="case-footer"><div class="btn-group">'
       +'<button class="btn btn-sm" onclick="editCase(this.dataset.k)" data-k="'+key+'"><i class="fa-solid fa-pen-to-square"></i>ແກ້ໄຂ</button>'
+      +'<button class="btn btn-sm" style="color:#2b579a;border-color:#b0c4e8" onclick="openRingiWordModal(this.dataset.k)" data-k="'+key+'"><i class="fa-solid fa-file-word"></i>Word RINGI</button>'
       +'<button class="btn btn-sm" onclick="exportSingleCase(this.dataset.k)" data-k="'+key+'"><i class="fa-solid fa-file-excel"></i>Excel</button>'
       +'<button class="btn btn-sm" onclick="changeCaseStatus(this.dataset.k)" data-k="'+key+'"><i class="fa-solid fa-rotate"></i>ສະຖານະ</button>'
       +'<button class="btn btn-sm" style="color:var(--red)" onclick="deleteCase(this.dataset.k)" data-k="'+key+'"><i class="fa-solid fa-trash"></i>ລຶບ</button>'
@@ -1129,7 +1349,8 @@ function editCase(key) {
   // r-founded removed from form
   document.getElementById('r-purpose').value  = c.purpose||'';
   document.getElementById('r-repayment').value= c.repayment||'';
-  document.getElementById('r-notes').value    = c.notes||'';
+  document.getElementById('r-notes').value     = c.notes||'';
+  var fsEl = document.getElementById('r-freespace'); if(fsEl) fsEl.value = c.freeSpace||'';
   // Update form title and button
   document.getElementById('ringi-form-title').textContent = 'ແກ້ໄຂໃບຂໍອານຸມັດ RINGI';
   document.getElementById('ringi-save-btn').innerHTML = '<i class="fa-solid fa-floppy-disk"></i>ອັບເດດ';
@@ -1151,9 +1372,8 @@ function cancelRingi() {
 function clearRingiForm() {
   ['r-owner','r-source','r-company','r-contact','r-amount','r-deadline',
    'r-revenue','r-profit','r-terms','r-business','r-purpose',
-   'r-repayment','r-notes'].forEach(function(id){
-    if (!document.getElementById(id)) return;
-    document.getElementById(id).value = '';
+   'r-repayment','r-notes','r-freespace'].forEach(function(id){
+    var el = document.getElementById(id); if (!el) return; el.value = '';
   });
   document.getElementById('r-trade').value = 'ຕ້ອງການກູ້ຍືມ';
   document.getElementById('r-ringi-status').value = 'Ringi Pending';
@@ -1180,6 +1400,7 @@ function saveRingi() {
     purpose:     document.getElementById('r-purpose').value||'—',
     repayment:   document.getElementById('r-repayment').value||'—',
     notes:       document.getElementById('r-notes').value||'',
+    freeSpace:   document.getElementById('r-freespace').value||'',
     assets:      getAssets()
   };
 
@@ -1247,6 +1468,27 @@ function exportRingiExcel() {
   tryAutoLogin();
 })();
 </script>
+
+<div id="ringiLangModal" class="modal">
+  <div class="modal-content" style="width:380px">
+    <div class="modal-header">
+      <span class="modal-title"><i class="fa-solid fa-file-word" style="color:#2b579a"></i> ສ້າງໃບຂໍອານຸມັດ Word</span>
+      <button class="btn btn-sm" onclick="document.getElementById('ringiLangModal').classList.remove('show')"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div style="font-size:13px;color:var(--text-muted);margin-bottom:16px">ເລືອກພາສາສຳລັບ Ringi Word document:</div>
+    <div class="btn-group" style="flex-direction:column;gap:10px">
+      <button class="btn" style="justify-content:flex-start;padding:12px 16px;font-size:14px" onclick="doGenWord('lo')">
+        <span style="font-size:18px">🇱🇦</span> <strong>ລາວ</strong> — ໃບຂໍອານຸມັດ RINGI
+      </button>
+      <button class="btn" style="justify-content:flex-start;padding:12px 16px;font-size:14px" onclick="doGenWord('en')">
+        <span style="font-size:18px">🇬🇧</span> <strong>English</strong> — Approval Request Form
+      </button>
+      <button class="btn" style="justify-content:flex-start;padding:12px 16px;font-size:14px" onclick="doGenWord('ja')">
+        <span style="font-size:18px">🇯🇵</span> <strong>日本語</strong> — 稟議書
+      </button>
+    </div>
+  </div>
+</div>
 </body>
 </html><!-- ===== GITHUB GIST SETUP OVERLAY ===== -->
 
