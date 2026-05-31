@@ -217,7 +217,7 @@ tr:hover td{background:#f0f7ff}
     <div class="logo-sub">TIK Report System</div>
   </div>
   <nav class="sidebar-nav">
-    <div class="nav-item active" onclick="showSection('dashboard',this)"><i class="fa-solid fa-chart-pie"></i>ແດຊບອດ</div>
+    <div class="nav-item active" onclick="showSection('dashboard',this)"><i class="fa-solid fa-chart-pie"></i>ໜ້າຈໍສະຫຼຸບຂໍ້ມູນ</div>
     <div class="nav-item" onclick="showSection('calllist',this)"><i class="fa-solid fa-phone-volume"></i>Call List</div>
     <div class="nav-item" onclick="showSection('cases',this)"><i class="fa-solid fa-folder-open"></i>ລາຍການແຕ່ລະເຄສ</div>
     <div class="nav-item" onclick="showSection('ringi',this)"><i class="fa-solid fa-file-signature"></i>ສ້າງໃບຂໍອານຸມັດ</div>
@@ -226,7 +226,7 @@ tr:hover td{background:#f0f7ff}
 
 <div class="main">
   <div class="topbar">
-    <span class="topbar-title" id="topbar-title">ແດຊບອດ — ລາຍງານລວມ</span>
+    <span class="topbar-title" id="topbar-title">ໜ້າຈໍສະຫຼຸບຂໍ້ມູນ</span>
     <div class="topbar-right">
       <span class="sync-dot" id="sync-dot"></span>
       <span class="sync-label" id="sync-label">ກຳລັງເຊື່ອມຕໍ່...</span>
@@ -257,8 +257,8 @@ tr:hover td{background:#f0f7ff}
       <div class="metrics-grid">
         <div class="metric-card"><div class="metric-label">ຈຳນວນໂທທັງໝົດ</div><div class="metric-value" id="m-total">0</div><div class="metric-sub" id="m-total-sub">—</div></div>
         <div class="metric-card"><div class="metric-label">ຮັບສາຍໄດ້ລົມ</div><div class="metric-value" id="m-connected">0</div><div class="metric-sub" id="m-conn-rate">ອັດຕາ 0%</div></div>
-        <div class="metric-card"><div class="metric-label">ລູກຄ້າສົນໃຈ</div><div class="metric-value" id="m-interested">0</div><div class="metric-sub" id="m-int-rate">ອັດຕາ 0%</div></div>
-        <div class="metric-card"><div class="metric-label">ດໍາເນີນແລ້ວ</div><div class="metric-value" id="m-cases">0</div><div class="metric-sub">ເຄສທັງໝົດ</div></div>
+        <div class="metric-card"><div class="metric-label">ລູກຄ້າສົນໃຈ (Active)</div><div class="metric-value" id="m-interested">0</div><div class="metric-sub" id="m-int-rate">ອັດຕາ 0%</div></div>
+        <div class="metric-card"><div class="metric-label">ດໍາເນີນແລ້ວ (Executed)</div><div class="metric-value" id="m-cases">0</div><div class="metric-sub">ເຄສ Executed</div></div>
       </div>
 
       <div class="grid-2">
@@ -267,14 +267,14 @@ tr:hover td{background:#f0f7ff}
           <div id="dash-call-bars"></div>
         </div>
         <div class="card">
-          <div class="card-header"><span class="card-title">ເຄສເຮັດການຄ້າ</span></div>
+          <div class="card-header"><span class="card-title">ຈຸດປະສົງລູກຄ້າ</span></div>
           <div id="dash-trade-bars"></div>
         </div>
       </div>
 
       <div class="card">
         <div class="card-header"><span class="card-title">ສະຫຼຸບຕາມຜູ້ຮັບຜິດຊອບ</span></div>
-        <table><thead><tr><th>ຜູ້ຮັບຜິດຊອບ</th><th>ຈຳນວນໂທ</th><th>ຮັບສາຍ</th><th>ສົນໃຈ</th><th>ບໍ່ສົນ</th><th>ກູ້ຢືມ</th><th>JV</th><th>ລົງທຶນ</th><th>ຊື້ຂາຍ</th><th>ເຄສ</th></tr></thead>
+        <table><thead><tr><th>ຜູ້ຮັບຜິດຊອບ</th><th>ຈຳນວນໂທ</th><th>ຮັບສາຍ</th><th>ລູກຄ້າສົນໃຈທົງໝົດ</th><th>ກູ້ຢືມ</th><th>JV</th><th>ລົງທຶນ</th><th>ຊື້ຂາຍ</th><th>ເຄສທັງໝົດ</th></tr></thead>
         <tbody id="dash-owner-tbody"></tbody></table>
       </div>
     </div>
@@ -302,7 +302,7 @@ tr:hover td{background:#f0f7ff}
       </div>
 
       <div class="card" style="padding:0;overflow:hidden">
-        <table><thead><tr><th>ແຫຼ່ງຂໍ້ມູນ</th><th>ຊື່ບໍລິສັດ</th><th>ຜູ້ຕິດຕໍ່</th><th>ສະຖານະ</th><th>ຜົນ</th><th>ເຄສເຮັດການຄ້າ</th><th>ຜູ້ຮັບຜິດຊອບ</th><th></th></tr></thead>
+        <table><thead><tr><th>ແຫຼ່ງຂໍ້ມູນ</th><th>ຊື່ບໍລິສັດ</th><th>ຜູ້ຕິດຕໍ່</th><th>ສະຖານະ</th><th>ຜົນ</th><th>ຈຸດປະສົງລູກຄ້າ</th><th>ຜູ້ຮັບຜິດຊອບ</th><th></th></tr></thead>
         <tbody id="call-tbody"></tbody></table>
       </div>
 
@@ -326,7 +326,7 @@ tr:hover td{background:#f0f7ff}
               <select id="nc-result"><option value="ລູກຄ້າສົນໃຈ">ລູກຄ້າສົນໃຈ</option><option value="ບໍ່ສົນໃຈ">ບໍ່ສົນໃຈ</option><option value="—">—</option></select>
             </div>
           </div>
-          <div class="form-group" style="margin-bottom:16px"><label>ເຄສເຮັດການຄ້າ</label>
+          <div class="form-group" style="margin-bottom:16px"><label>ຈຸດປະສົງລູກຄ້າ</label>
             <select id="nc-trade"><option>ຕ້ອງການກູ້ຢືມ</option><option>ຮ່ວມທຸລະກິດ (JV)</option><option>ລົງທຶນ</option><option>ການແນະນຳ</option><option>ການຊື້ຂາຍ</option><option value="—">—</option></select>
           </div>
           <div class="btn-group" style="justify-content:flex-end">
@@ -377,7 +377,7 @@ tr:hover td{background:#f0f7ff}
             <div class="form-group"><label>ຊື່ຜູ້ຕິດຕໍ່</label><input type="text" id="r-contact" placeholder="ຊື່ - ນາມສະກຸນ"></div>
           </div>
           <div class="form-grid">
-            <div class="form-group"><label>ເຄສເຮັດການຄ້າ</label>
+            <div class="form-group"><label>ຈຸດປະສົງລູກຄ້າ</label>
               <select id="r-trade" oninput="updatePreview()"><option>ຕ້ອງການກູ້ຢືມ</option><option>ຮ່ວມທຸລະກິດ (JV)</option><option>ລົງທຶນ</option><option>ການແນະນຳ</option><option>ການຊື້ຂາຍ</option></select>
             </div>
             <div class="form-group"><label>ສະຖານະ RINGI</label>
@@ -407,13 +407,24 @@ tr:hover td{background:#f0f7ff}
         <div class="card-header"><span class="card-title">ຂໍ້ມູນລູກຄ້າ</span></div>
         <div class="form-grid">
           <div class="form-group"><label>ລາຍລະອຽດທຸລະກິດ</label><input type="text" id="r-business" placeholder="ກໍ່ສ້າງ, ການຄ້າ..." oninput="updatePreview()"></div>
-          <div class="form-group"><label>ປີທີ່ສ້າງຕັ້ງ</label><input type="text" id="r-founded" placeholder="2010"></div>
+          
         </div>
         <div class="form-grid">
           <div class="form-group"><label>ຈຸດປະສົງການໃຊ້ທຶນ</label><input type="text" id="r-purpose" placeholder="ທຶນໝຸນວຽນ / ຊື້ອຸປະກອນ"></div>
           <div class="form-group"><label>ແຫຼ່ງຊຳລະຄືນ</label><input type="text" id="r-repayment" placeholder="ເງິນຈາກລູກໜີ້ / ກຳໄລ"></div>
         </div>
-        <div class="form-group"><label>ລາຍລະອຽດອື່ນໆ</label>
+              <!-- ຊັບສິນລູກຄ້າ -->
+      <div class="card" style="margin-top:0;margin-bottom:16px">
+        <div class="card-header">
+          <span class="card-title"><i class="fa-solid fa-building"></i> ຊັບສິນລູກຄ້າ</span>
+          <button class="btn btn-sm" onclick="addAssetRow()" type="button"><i class="fa-solid fa-plus"></i>ເພີ່ມຊັບສິນ</button>
+        </div>
+        <div id="assets-container">
+          <!-- rows added dynamically -->
+        </div>
+        <div style="font-size:11px;color:var(--text-faint);margin-top:6px">ລູກຄ້າສາມາດມີຊັບສິນຫຼາຍລາຍການ — ກົດ "ເພີ່ມຊັບສິນ" ສຳລັບແຕ່ລະລາຍການ</div>
+      </div>
+        ss="form-group"><label>ລາຍລະອຽດອື່ນໆ</label>
           <textarea id="r-notes" placeholder="ເນື້ອໃນການນັດພົບ, ຂໍ້ສັງເກດ, ຂໍ້ກັງວົນ..." oninput="updatePreview()"></textarea>
         </div>
         <div class="form-group" style="margin-top:8px"><label>ໄຟລ໌ແນບ</label><input type="file" style="font-size:12px;padding:6px"></div>
@@ -427,7 +438,7 @@ tr:hover td{background:#f0f7ff}
             <span class="ringi-label">ຜູ້ຮັບຜິດຊອບ</span><span class="ringi-val" id="pv-owner">—</span>
             <span class="ringi-label">ວັນທີ</span><span class="ringi-val" id="pv-date"></span>
             <span class="ringi-label">ຊື່ບໍລິສັດ</span><span class="ringi-val" id="pv-company">—</span>
-            <span class="ringi-label">ເຄສເຮັດການຄ້າ</span><span class="ringi-val" id="pv-trade">—</span>
+            <span class="ringi-label">ຈຸດປະສົງລູກຄ້າ</span><span class="ringi-val" id="pv-trade">—</span>
             <span class="ringi-label">ຈຳນວນເງິນ</span><span class="ringi-val" id="pv-amount">—</span>
             <span class="ringi-label">ກຳນົດເວລາ</span><span class="ringi-val" id="pv-deadline">—</span>
             <span class="ringi-label">ລາຍຮັບ/ເດືອນ</span><span class="ringi-val" id="pv-revenue">—</span>
@@ -452,7 +463,7 @@ var callData  = [];
 var caseData  = [];
 var GH_TOKEN  = '';
 var GH_GIST   = '';
-var GH_DEFAULT_TOKEN = ''; // ບໍ່ hardcode token — ຜູ້ໃຊ້ໃສ່ເອງ
+var GH_DEFAULT_TOKEN = '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';
 var GH_DEFAULT_GIST  = 'a940078aaeaf088e17708690e4a4aca6'; // Gist ID ທີມ
 var GH_FILE   = 'tik_report_data.json';
 var GH_URL    = 'https://api.github.com/gists';
@@ -645,15 +656,15 @@ function startPolling() {
 
 // ---- AUTO LOGIN ----
 function tryAutoLogin() {
-  var k = localStorage.getItem('tik_gh_token');
+  var k = localStorage.getItem('tik_gh_token') || GH_DEFAULT_TOKEN;
   var g = localStorage.getItem('tik_gh_gist') || GH_DEFAULT_GIST;
   if (k && g) {
-    // Have saved credentials → auto-connect
     GH_TOKEN = k; GH_GIST = g;
+    localStorage.setItem('tik_gh_token', k);
+    localStorage.setItem('tik_gh_gist', g);
     document.getElementById('setup-overlay').style.display = 'none';
     loadData(true);
   } else {
-    // No token saved → show overlay, pre-fill Gist ID only
     document.getElementById('setup-overlay').style.display = 'flex';
     var gistEl = document.getElementById('gh-gistid');
     if (gistEl && !gistEl.value) gistEl.value = GH_DEFAULT_GIST;
@@ -714,7 +725,7 @@ function showSection(id, el) {
   document.querySelectorAll('.nav-item').forEach(function(n){ n.classList.remove('active'); });
   document.getElementById(id).classList.add('active');
   if (el) el.classList.add('active');
-  var t = {dashboard:'ແດຊບອດ',calllist:'Call List',cases:'ລາຍການແຕ່ລະເຄສ',ringi:'ສ້າງໃບຂໍອານຸມັດ RINGI'};
+  var t = {dashboard:'ໜ້າຈໍສະຫຼຸບຂໍ້ມູນ',calllist:'Call List',cases:'ລາຍການແຕ່ລະເຄສ',ringi:'ສ້າງໃບຂໍອານຸມັດ RINGI'};
   document.getElementById('topbar-title').textContent = t[id]||'';
 }
 function dashToggle(btn) {
@@ -759,6 +770,62 @@ function importLocalData() {
   inp.click();
 }
 
+
+// ============================================================
+// ASSETS (ຊັບສິນລູກຄ້າ)
+// ============================================================
+var assetRowCount = 0;
+
+function addAssetRow(type, value) {
+  assetRowCount++;
+  var id = 'asset_' + assetRowCount;
+  var div = document.createElement('div');
+  div.id = id;
+  div.style.cssText = 'display:grid;grid-template-columns:1fr 1fr auto;gap:10px;align-items:end;margin-bottom:8px;padding:10px 12px;background:var(--bg);border-radius:var(--radius);border:1px solid var(--border)';
+  div.innerHTML =
+    '<div class="form-group"><label>ປະເພດຊັບສິນ</label>'
+    + '<select class="asset-type"><option value="">-- ເລືອກ --</option>'
+    + '<option value="ດິນ">ດິນ</option><option value="ເຮືອນ/ອາຄານ">ເຮືອນ/ອາຄານ</option><option value="ລົດ">ລົດ</option><option value="ອຸປະກອນ/ເຄື່ອງຈັກ">ອຸປະກອນ/ເຄື່ອງຈັກ</option><option value="ຄຸ/ສາງ">ຄຸ/ສາງ</option><option value="ບັນຊີ/ເງິນຝາກ">ບັນຊີ/ເງິນຝາກ</option><option value="ຍານພາຫານະ">ຍານພາຫານະ</option><option value="ອື່ນໆ">ອື່ນໆ</option>'
+    + '</select></div>'
+    + '<div class="form-group"><label>ມູນຄ່າປະເມີນ ($)</label>'
+    + '<input type="number" class="asset-value" placeholder="0" min="0"></div>'
+    + '<button type="button" onclick="removeAssetRow(\''+id+'\')" style="padding:8px 12px;background:var(--red-light);color:var(--red);border:1px solid #fca5a5;border-radius:var(--radius);cursor:pointer;font-size:12px;height:37px;margin-top:2px;white-space:nowrap"><i class="fa-solid fa-trash"></i></button>';
+  // Set existing values if editing
+  if (type) div.querySelector('.asset-type').value = type;
+  if (value) div.querySelector('.asset-value').value = value;
+  document.getElementById('assets-container').appendChild(div);
+}
+
+function removeAssetRow(id) {
+  var el = document.getElementById(id);
+  if (el) el.remove();
+}
+
+function getAssets() {
+  var rows = document.querySelectorAll('#assets-container > div');
+  var assets = [];
+  rows.forEach(function(row) {
+    var t = row.querySelector('.asset-type');
+    var v = row.querySelector('.asset-value');
+    if (t && v && (t.value || v.value)) {
+      assets.push({ type: t.value, value: parseFloat(v.value)||0 });
+    }
+  });
+  return assets;
+}
+
+function loadAssets(assets) {
+  document.getElementById('assets-container').innerHTML = '';
+  assetRowCount = 0;
+  if (assets && assets.length > 0) {
+    assets.forEach(function(a) { addAssetRow(a.type, a.value); });
+  }
+}
+
+function totalAssets() {
+  return getAssets().reduce(function(sum, a) { return sum + a.value; }, 0);
+}
+
 // ============================================================
 // DASHBOARD
 // ============================================================
@@ -768,69 +835,96 @@ function ringiStatusBadge(s) {
   return '<span class="badge badge-pending">Ringi Pending</span>';
 }
 function updateDashboard() {
-  var total   = callData.length;
-  var conn    = callData.filter(function(r){ return r.status==='ຮັບສາຍໄດ້ລົມ'; }).length;
-  var interest= callData.filter(function(r){ return r.result==='ລູກຄ້າສົນໃຈ'; }).length;
-  document.getElementById('m-total').textContent    = total;
-  document.getElementById('m-connected').textContent= conn;
-  document.getElementById('m-interested').textContent= interest;
-  document.getElementById('m-cases').textContent    = caseData.length;
-  document.getElementById('m-total-sub').textContent = 'ທັງໝົດ '+total+' ລາຍການ';
-  document.getElementById('m-conn-rate').textContent = total ? 'ອັດຕາ '+Math.round(conn/total*100)+'%' : 'ອັດຕາ 0%';
-  document.getElementById('m-int-rate').textContent  = conn ? 'ອັດຕາ '+Math.round(interest/conn*100)+'%' : 'ອັດຕາ 0%';
-
-  // call status bars
+  // ---- Call-based metrics ----
+  var total     = callData.length;
+  var conn      = callData.filter(function(r){ return r.status==='ຮັບສາຍໄດ້ລົມ'; }).length;
   var notAnswer = callData.filter(function(r){ return r.status==='ບໍ່ຮັບສາຍ'; }).length;
   var noConn    = callData.filter(function(r){ return r.status==='ຕິດຕໍ່ບໍ່ໄດ້'; }).length;
+
+  // ---- Case-based metrics ----
+  var executed  = caseData.filter(function(c){ return c.ringiStatus==='Executed'; }).length;
+  var interested = caseData.length - executed; // ລູກຄ້າສົນໃຈ = ທຸກເຄສ - ດໍາເນີນແລ້ວ
+
+  // ---- Metric cards ----
+  document.getElementById('m-total').textContent     = total;
+  document.getElementById('m-connected').textContent = conn;
+  document.getElementById('m-interested').textContent= interested;
+  document.getElementById('m-cases').textContent     = executed;
+  document.getElementById('m-total-sub').textContent = 'ທັງໝົດ '+total+' ລາຍການ';
+  document.getElementById('m-conn-rate').textContent = total ? 'ອັດຕາ '+Math.round(conn/total*100)+'%' : 'ອັດຕາ 0%';
+  document.getElementById('m-int-rate').textContent  = caseData.length ? caseData.length+' ເຄສທັງໝົດ' : '0 ເຄສ';
+
+  // ---- Call status bars (still call-based) ----
   var callBars = [
     {label:'ຮັບສາຍໄດ້ລົມ', val:conn, color:'#1a472a'},
-    {label:'ຕິດຕໍ່ບໍ່ໄດ້', val:noConn, color:'#7a1a1a'},
-    {label:'ບໍ່ຮັບສາຍ', val:notAnswer, color:'#6b6860'}
+    {label:'ຕິດຕໍ່ບໍ່ໄດ້',  val:noConn, color:'#7a1a1a'},
+    {label:'ບໍ່ຮັບສາຍ',    val:notAnswer, color:'#6b6860'}
   ];
   document.getElementById('dash-call-bars').innerHTML = callBars.map(function(b){
     var pct = total ? Math.round(b.val/total*100) : 0;
     return '<div class="bar-wrap"><div class="bar-label">'+b.label+'</div><div class="bar-track"><div class="bar-fill" style="width:'+pct+'%;background:'+b.color+'"></div></div><div class="bar-val">'+b.val+'</div></div>';
   }).join('');
 
-  // trade bars
+  // ---- ຈຸດປະສົງລູກຄ້າ bars (from caseData) ----
   var trades = ['ຕ້ອງການກູ້ຢືມ','ຮ່ວມທຸລະກິດ (JV)','ລົງທຶນ','ການແນະນຳ','ການຊື້ຂາຍ'];
   var colors = ['#1a472a','#7a4a00','#3d1a7a','#0a5a5a','#1a3a5c'];
   var tradeCounts = trades.map(function(t){
-    return callData.filter(function(r){ return r.trade===t; }).length;
+    return caseData.filter(function(c){ return c.trade===t; }).length;
   });
   var maxT = Math.max.apply(null, tradeCounts) || 1;
   document.getElementById('dash-trade-bars').innerHTML = trades.map(function(t,i){
     return '<div class="bar-wrap"><div class="bar-label">'+t+'</div><div class="bar-track"><div class="bar-fill" style="width:'+Math.round(tradeCounts[i]/maxT*100)+'%;background:'+colors[i]+'"></div></div><div class="bar-val">'+tradeCounts[i]+'</div></div>';
   }).join('');
 
-  // owner table
+  // ---- Owner table ----
+  // Build from callData (calls, conn) + caseData (interest, trade breakdown)
   var owners = {};
-  callData.forEach(function(r){
-    if(!r.owner||r.owner==='—') return;
-    if(!owners[r.owner]) owners[r.owner]={calls:0,conn:0,interest:0,noInterest:0,loan:0,jv:0,invest:0,trade:0};
-    var o = owners[r.owner];
-    o.calls++;
-    if(r.status==='ຮັບສາຍໄດ້ລົມ') o.conn++;
-    if(r.result==='ລູກຄ້າສົນໃຈ') o.interest++;
-    if(r.result==='ບໍ່ສົນໃຈ') o.noInterest++;
-    if(r.trade==='ຕ້ອງການກູ້ຢືມ') o.loan++;
-    if(r.trade==='ຮ່ວມທຸລະກິດ (JV)') o.jv++;
-    if(r.trade==='ລົງທຶນ') o.invest++;
-    if(r.trade==='ການຊື້ຂາຍ') o.trade++;
+
+  function ensureOwner(name) {
+    if (!owners[name]) owners[name] = {calls:0, conn:0, interested:0, loan:0, jv:0, invest:0, trade:0, totalCases:0};
+  }
+
+  // Calls from callData
+  callData.forEach(function(r) {
+    if (!r.owner || r.owner==='—') return;
+    ensureOwner(r.owner);
+    owners[r.owner].calls++;
+    if (r.status==='ຮັບສາຍໄດ້ລົມ') owners[r.owner].conn++;
   });
-  // Also include owners from caseData who may not have calls
-  caseData.forEach(function(c){
-    if(!c.owner||c.owner==='—') return;
-    if(!owners[c.owner]) owners[c.owner]={calls:0,conn:0,interest:0,noInterest:0,loan:0,jv:0,invest:0,trade:0};
+
+  // Case metrics from caseData (ຈຸດປະສົງ + ສົນໃຈ)
+  caseData.forEach(function(c) {
+    if (!c.owner || c.owner==='—') return;
+    ensureOwner(c.owner);
+    owners[c.owner].totalCases++;
+    // ລູກຄ້າສົນໃຈທົງໝົດ = cases that are NOT Executed
+    if (c.ringiStatus !== 'Executed') owners[c.owner].interested++;
+    // ຈຸດປະສົງ breakdown
+    if (c.trade==='ຕ້ອງການກູ້ຢືມ')   owners[c.owner].loan++;
+    if (c.trade==='ຮ່ວມທຸລະກິດ (JV)') owners[c.owner].jv++;
+    if (c.trade==='ລົງທຶນ')            owners[c.owner].invest++;
+    if (c.trade==='ການຊື້ຂາຍ')        owners[c.owner].trade++;
   });
-  var ownerRows = Object.keys(owners).map(function(name){
+
+  var ownerRows = Object.keys(owners).map(function(name) {
     var o = owners[name];
     var rate = o.calls ? Math.round(o.conn/o.calls*100) : 0;
-    var cls = rate>=55?'badge-green':rate>=45?'badge-amber':'badge-red';
-    var ownerCases = caseData.filter(function(c){ return c.owner===name; }).length;
-    return '<tr><td>'+name+'</td><td>'+o.calls+'</td><td><span class="badge '+cls+'">'+rate+'%</span></td><td>'+o.interest+'</td><td>'+o.noInterest+'</td><td>'+o.loan+'</td><td>'+o.jv+'</td><td>'+o.invest+'</td><td>'+o.trade+'</td><td>'+ownerCases+'</td></tr>';
+    var cls  = rate>=55?'badge-green':rate>=45?'badge-amber':'badge-red';
+    return '<tr>'
+      +'<td>'+name+'</td>'
+      +'<td>'+o.calls+'</td>'
+      +'<td><span class="badge '+cls+'">'+rate+'%</span></td>'
+      +'<td><strong>'+o.interested+'</strong></td>'
+      +'<td>'+o.loan+'</td>'
+      +'<td>'+o.jv+'</td>'
+      +'<td>'+o.invest+'</td>'
+      +'<td>'+o.trade+'</td>'
+      +'<td>'+o.totalCases+'</td>'
+      +'</tr>';
   }).join('');
-  document.getElementById('dash-owner-tbody').innerHTML = ownerRows || '<tr><td colspan="10" style="text-align:center;color:var(--text-faint);padding:20px">ຍັງບໍ່ມີຂໍ້ມູນ</td></tr>';
+
+  document.getElementById('dash-owner-tbody').innerHTML = ownerRows
+    || '<tr><td colspan="9" style="text-align:center;color:var(--text-faint);padding:20px">ຍັງບໍ່ມີຂໍ້ມູນ</td></tr>';
 }
 
 // ============================================================
@@ -898,7 +992,7 @@ function handleImport(input) {
           contact: r['ຜູ້ຕິດຕໍ່']||r['Contact']||r['contact']||'—',
           status:  r['ສະຖານະ']||r['Status']||r['status']||'—',
           result:  r['ຜົນ']||r['Result']||r['result']||'—',
-          trade:   r['ເຄສເຮັດການຄ້າ']||r['Trade']||r['trade']||'—',
+          trade:   r['ຈຸດປະສົງລູກຄ້າ']||r['Trade']||r['trade']||'—',
           owner:   r['ຜູ້ຮັບຜິດຊອບ']||r['Owner']||r['owner']||'—',
           createdAt: now + i
         };
@@ -916,7 +1010,7 @@ function handleImport(input) {
   }
 }
 function exportCallList() {
-  var ws = XLSX.utils.json_to_sheet(callData.map(function(r){ return {'ແຫຼ່ງຂໍ້ມູນ':r.source,'ຊື່ບໍລິສັດ':r.company,'ຜູ້ຕິດຕໍ່':r.contact,'ສະຖານະ':r.status,'ຜົນ':r.result,'ເຄສເຮັດການຄ້າ':r.trade,'ຜູ້ຮັບຜິດຊອບ':r.owner}; }));
+  var ws = XLSX.utils.json_to_sheet(callData.map(function(r){ return {'ແຫຼ່ງຂໍ້ມູນ':r.source,'ຊື່ບໍລິສັດ':r.company,'ຜູ້ຕິດຕໍ່':r.contact,'ສະຖານະ':r.status,'ຜົນ':r.result,'ຈຸດປະສົງລູກຄ້າ':r.trade,'ຜູ້ຮັບຜິດຊອບ':r.owner}; }));
   var wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb,ws,'ລາຍຊື່ໂທ');
   XLSX.writeFile(wb,'TIK_CallList.xlsx');
 }
@@ -939,12 +1033,14 @@ function renderCases() {
       +'</div></div>'
       +'<div><div class="case-amount">$'+(c.amount||0).toLocaleString()+'</div>'
       +'<div class="case-deadline">ກຳນົດ: '+c.deadline+'</div></div></div>'
-      +'<div class="case-fields">'
-      +'<div><div class="cf-label">ລາຍຮັບ/ເດືອນ</div><div class="cf-value">$'+(c.revenue||0).toLocaleString()+'</div></div>'
-      +'<div><div class="cf-label">ກຳໄລ/ເດືອນ</div><div class="cf-value">$'+(c.profit||0).toLocaleString()+'</div></div>'
-      +'<div><div class="cf-label">ເງື່ອນໄຂ</div><div class="cf-value">'+(c.terms||'—')+'</div></div>'
-      +'<div><div class="cf-label">ບົລິສັດ</div><div class="cf-value">'+(c.source||'—')+'</div></div>'
+      +'<div class="case-fields" style="grid-template-columns:repeat(5,1fr)">'
+      +'<div><div class="cf-label">ວົງເງິນ ($)</div><div class="cf-value">$'+(c.amount||0).toLocaleString()+'</div></div>'
+      +'<div><div class="cf-label">ຈຸດປະສົງ</div><div class="cf-value">'+(c.trade||'—')+'</div></div>'
+      +'<div><div class="cf-label">ຊື່ບໍລິສັດ</div><div class="cf-value">'+(c.company||(c.name||'').split(' — ')[0]||'—')+'</div></div>'
+      +'<div><div class="cf-label">ແຫຼ່ງທີ່ມາ</div><div class="cf-value">'+(c.source||'—')+'</div></div>'
+      +'<div><div class="cf-label">ລາຍລະອຽດທຸລະກິດ</div><div class="cf-value">'+(c.business||'—')+'</div></div>'
       +'</div>'
+      +(c.assets&&c.assets.length?'<div style="font-size:12px;color:var(--teal);padding:6px 12px;background:var(--teal-light);border-radius:var(--radius);margin-bottom:6px"><i class="fa-solid fa-landmark"></i> ຊັບສິນ: '+c.assets.map(function(a){return a.type+(a.value?'=$'+a.value.toLocaleString():'');}).join(' | ')+'</div>':'')
       +(c.notes?'<div style="font-size:12px;color:var(--amber);padding:8px 12px;background:var(--amber-light);border-radius:var(--radius);margin-bottom:10px;border-left:3px solid #f59e0b">'+c.notes+'</div>':'')
       +'<div class="case-footer"><div class="btn-group">'
       +'<button class="btn btn-sm" onclick="editCase(this.dataset.k)" data-k="'+key+'"><i class="fa-solid fa-pen-to-square"></i>ແກ້ໄຂ</button>'
@@ -974,7 +1070,7 @@ function exportSingleCase(key) {
   var ws = XLSX.utils.aoa_to_sheet([
     ['ໃບຂໍອານຸມັດ RINGI'],[''],
     ['ຜູ້ຮັບຜິດຊອບ',c.owner,'ວັນທີ',new Date().toLocaleDateString('lo-LA')],
-    ['ຊື່ເຄສ',c.name],['ເຄສເຮັດການຄ້າ',c.trade,'ສະຖານະ',c.ringiStatus],
+    ['ຊື່ເຄສ',c.name],['ຈຸດປະສົງລູກຄ້າ',c.trade,'ສະຖານະ',c.ringiStatus],
     ['ຈຳນວນເງິນ ($)',c.amount,'ກຳນົດ',c.deadline],
     ['ລາຍຮັບ/ເດືອນ ($)',c.revenue,'ກຳໄລ/ເດືອນ ($)',c.profit],
     ['ເງື່ອນໄຂ',c.terms],['ທຸລະກິດ',c.business],
@@ -986,7 +1082,7 @@ function exportSingleCase(key) {
 }
 function exportAllCases() {
   var sorted=caseData.slice().sort(function(a,b){ return (b.createdAt||0)-(a.createdAt||0); });
-  var rows=[['ຊື່ເຄສ','ເຄສເຮັດການຄ້າ','ສະຖານະ','ຈຳນວນເງິນ ($)','ກຳນົດ','ຜູ້ຮັບຜິດຊອບ','ລາຍຮັບ/ເດືອນ','ກຳໄລ/ເດືອນ','ເງື່ອນໄຂ','ທຸລະກິດ','ແຫຼ່ງ','ໝາຍເຫດ']];
+  var rows=[['ຊື່ເຄສ','ຈຸດປະສົງລູກຄ້າ','ສະຖານະ','ຈຳນວນເງິນ ($)','ກຳນົດ','ຜູ້ຮັບຜິດຊອບ','ລາຍຮັບ/ເດືອນ','ກຳໄລ/ເດືອນ','ເງື່ອນໄຂ','ທຸລະກິດ','ແຫຼ່ງ','ໝາຍເຫດ']];
   sorted.forEach(function(c){ rows.push([c.name,c.trade,c.ringiStatus,c.amount,c.deadline,c.owner,c.revenue,c.profit,c.terms,c.business,c.source,c.notes]); });
   var ws=XLSX.utils.aoa_to_sheet(rows);
   var wb=XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb,ws,'ລາຍການເຄສ');
@@ -1028,7 +1124,7 @@ function editCase(key) {
   document.getElementById('r-profit').value   = c.profit||'';
   document.getElementById('r-terms').value    = c.terms||'';
   document.getElementById('r-business').value = c.business||'';
-  document.getElementById('r-founded').value  = c.founded||'';
+  // r-founded removed from form
   document.getElementById('r-purpose').value  = c.purpose||'';
   document.getElementById('r-repayment').value= c.repayment||'';
   document.getElementById('r-notes').value    = c.notes||'';
@@ -1036,6 +1132,7 @@ function editCase(key) {
   document.getElementById('ringi-form-title').textContent = 'ແກ້ໄຂໃບຂໍອານຸມັດ RINGI';
   document.getElementById('ringi-save-btn').innerHTML = '<i class="fa-solid fa-floppy-disk"></i>ອັບເດດ';
   document.getElementById('ringi-cancel-btn').style.display = 'inline-flex';
+  loadAssets(c.assets||[]);
   updatePreview();
   showSection('ringi', document.querySelectorAll('.nav-item')[3]);
 }
@@ -1051,17 +1148,20 @@ function cancelRingi() {
 
 function clearRingiForm() {
   ['r-owner','r-source','r-company','r-contact','r-amount','r-deadline',
-   'r-revenue','r-profit','r-terms','r-business','r-founded','r-purpose',
+   'r-revenue','r-profit','r-terms','r-business','r-purpose',
    'r-repayment','r-notes'].forEach(function(id){
     document.getElementById(id).value = '';
   });
   document.getElementById('r-trade').value = 'ຕ້ອງການກູ້ຍືມ';
   document.getElementById('r-ringi-status').value = 'Ringi Pending';
+  document.getElementById('assets-container').innerHTML = '';
+  assetRowCount = 0;
 }
 
 function saveRingi() {
   var fields = {
     name:        (document.getElementById('r-company').value||'ໃໝ່')+' — '+document.getElementById('r-trade').value,
+    company:     document.getElementById('r-company').value||'—',
     trade:       document.getElementById('r-trade').value,
     ringiStatus: document.getElementById('r-ringi-status').value,
     callStatus:  document.getElementById('r-call-status').value,
@@ -1076,7 +1176,8 @@ function saveRingi() {
     founded:     document.getElementById('r-founded').value||'—',
     purpose:     document.getElementById('r-purpose').value||'—',
     repayment:   document.getElementById('r-repayment').value||'—',
-    notes:       document.getElementById('r-notes').value||''
+    notes:       document.getElementById('r-notes').value||'',
+    assets:      getAssets()
   };
 
   var wasEditing = !!editingKey;
@@ -1118,7 +1219,7 @@ function exportRingiExcel() {
     ['ໃບຂໍອານຸມັດ RINGI — TM-Pro TIK Report'],[''],
     ['ຜູ້ຮັບຜິດຊອບ',document.getElementById('r-owner').value,'ວັນທີ',new Date().toLocaleDateString('lo-LA')],
     ['ຊື່ບໍລິສັດ',document.getElementById('r-company').value,'ຜູ້ຕິດຕໍ່',document.getElementById('r-contact').value],
-    ['ເຄສເຮັດການຄ້າ',document.getElementById('r-trade').value,'ສະຖານະ',document.getElementById('r-ringi-status').value],
+    ['ຈຸດປະສົງລູກຄ້າ',document.getElementById('r-trade').value,'ສະຖານະ',document.getElementById('r-ringi-status').value],
     ['ສະຖານະໂທ',document.getElementById('r-call-status').value,'ແຫຼ່ງຂໍ້ມູນ',document.getElementById('r-source').value],
     ['ຈຳນວນເງິນ ($)',parseInt(document.getElementById('r-amount').value)||0,'ກຳນົດ',document.getElementById('r-deadline').value],
     ['ລາຍຮັບ/ເດືອນ ($)',parseInt(document.getElementById('r-revenue').value)||0,'ກຳໄລ/ເດືອນ ($)',parseInt(document.getElementById('r-profit').value)||0],
