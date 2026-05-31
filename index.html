@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+<!-- TIK Report v3.1 - 2026-05-31 08:40 -->
 <html lang="lo">
 <head>
 <meta charset="UTF-8">
@@ -1151,6 +1152,7 @@ function clearRingiForm() {
   ['r-owner','r-source','r-company','r-contact','r-amount','r-deadline',
    'r-revenue','r-profit','r-terms','r-business','r-purpose',
    'r-repayment','r-notes'].forEach(function(id){
+    if (!document.getElementById(id)) return;
     document.getElementById(id).value = '';
   });
   document.getElementById('r-trade').value = 'ຕ້ອງການກູ້ຍືມ';
@@ -1225,7 +1227,7 @@ function exportRingiExcel() {
     ['ຈຳນວນເງິນ ($)',parseInt(document.getElementById('r-amount').value)||0,'ກຳນົດ',document.getElementById('r-deadline').value],
     ['ລາຍຮັບ/ເດືອນ ($)',parseInt(document.getElementById('r-revenue').value)||0,'ກຳໄລ/ເດືອນ ($)',parseInt(document.getElementById('r-profit').value)||0],
     ['ເງື່ອນໄຂ',document.getElementById('r-terms').value],
-    ['ທຸລະກິດ',document.getElementById('r-business').value,'ປີ',document.getElementById('r-founded').value],
+    ['ທຸລະກິດ',document.getElementById('r-business').value],
     ['ຈຸດປະສົງ',document.getElementById('r-purpose').value,'ຊຳລະຄືນ',document.getElementById('r-repayment').value],
     ['ລາຍລະອຽດອື່ນໆ',document.getElementById('r-notes').value]
   ]);
